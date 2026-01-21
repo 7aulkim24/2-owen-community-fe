@@ -127,6 +127,21 @@ async function loadMorePosts() {
 
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
+    // 헤더 프로필 드롭다운
+    const headerProfileBtn = document.getElementById('header-profile-btn');
+    const profileDropdown = document.getElementById('profile-dropdown');
+
+    if (headerProfileBtn && profileDropdown) {
+        headerProfileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            profileDropdown.classList.remove('show');
+        });
+    }
+
     // 초기 10개 데이터 로드
     const initialPosts = getDummyPosts(1);
     renderPosts(initialPosts);
