@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owen Community</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header id="header">
+        <div class="header-container">
+            <h1 class="header-title">아무 말 대잔치</h1>
+            <div class="profile-icon">
+                <img src="./assets/default-profile.png" alt="Profile" id="header-profile-img">
+            </div>
+        </div>
+    </header>
+
+    <main id="app">
+        <section class="welcome-section">
+            <p>안녕하세요,</p>
+            <p>아무 말 대잔치 <strong>게시판</strong> 입니다.</p>
+        </section>
+
+        <section id="post-list-container">
+            <div class="action-bar">
+                <button id="btn-create-post" class="btn-create">게시글 작성</button>
+            </div>
+            <div id="post-list">
+                <!-- 게시글 데이터가 여기에 렌더링됩니다 -->
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <p>&copy; 2026 Owen Community. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="js/pages/posts.js"></script>
+</body>
+</html>
