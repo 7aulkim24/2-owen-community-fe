@@ -5,7 +5,8 @@
   "scripts": {
     "build:css": "./build-css.sh",
     "build:css:dev": "./build-css.sh dev",
-    "build": "npm run build:css"
+    "build:html": "./build-html.sh",
+    "build": "npm run build:html && npm run build:css"
   },
   "keywords": ["community", "frontend", "css"],
   "author": "",

@@ -1,4 +1,4 @@
-// import { request } from '../api.js';
+import { request } from '../api.js';
 
 // 상태 관리
 let editingCommentId = null;

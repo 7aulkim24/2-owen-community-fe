@@ -1,4 +1,4 @@
-// import { request } from '../api.js';
+import { request } from '../api.js';
 import { validateEmail, validatePassword } from '../utils/validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {

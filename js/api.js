@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ||
+                           process.env?.API_BASE_URL ||
+                           'http://localhost:8000';
 
 // 표준 API 요청 함수
 // 백엔드의 StandardResponse 포맷(code, message, data, details)을 처리합니다.

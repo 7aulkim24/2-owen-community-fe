@@ -1,4 +1,4 @@
-// import { request } from '../api.js';
+import { request } from '../api.js';
 
 // DOM 요소
 const postList = document.getElementById('post-list');

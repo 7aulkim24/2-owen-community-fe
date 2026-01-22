@@ -9,6 +9,8 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
 - **Styling**: Flexbox, CSS Grid, 반응형 디자인
 - **Architecture**: 컴포넌트 기반 모듈화 구조
+- **Build System**: 자동화된 HTML/CSS 경로 관리, 환경 변수 지원
+- **API Integration**: 유연한 환경별 API 엔드포인트 설정
 
 ## 주요 구현 기능
 
@@ -34,6 +36,10 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - **인터랙션 요소**: 토스트 메시지, 모달, 반응형 디자인, 상태 시각화
 
 ## 폴더 구조
+- `pages/`:
+  - `auth/`: 인증 관련 페이지 (`login.html`, `signup.html`)
+  - `posts/`: 게시글 관련 페이지 (`list.html`, `detail.html`, `create.html`, `edit.html`)
+  - `profile/`: 프로필 관리 페이지 (`edit-profile.html`, `edit-password.html`)
 - `css/`:
   - `common.css`: 공통 스타일 및 컴포넌트 정의
   - `pages/`: 페이지별 고유 스타일 (`login.css`, `signup.css`, `posts.css`, `post-detail.css`, `make-post.css`, `edit-post.css`, `edit-profile.css`, `edit-password.css`)
@@ -41,9 +47,25 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
   - `api.js`: fetch API를 활용한 통신 모듈
   - `pages/`: 각 페이지별 비즈니스 로직 (`login.js`, `signup.js`, `posts.js`, `post-detail.js`, `make-post.js`, `edit-post.js`, `edit-profile.js`, `edit-password.js`)
   - `utils/`: 유효성 검사 등 공통 유틸리티 함수 (`validation.js`)
-- `*.html`: 각 페이지별 마크업 파일 (`login.html`, `signup.html`, `posts.html`, `post-detail.html`, `make-post.html`, `edit-post.html`, `edit-profile.html`, `edit-password.html`)
 - `build-css.sh`: CSS 빌드 스크립트
+- `build-html.sh`: HTML 파일 배포용 복사 스크립트
 - `package.json`: 프로젝트 설정 및 의존성 관리
+
+## 개발 워크플로우
+
+### 개발 시
+1. `pages/` 디렉토리의 HTML 파일들을 직접 편집
+2. CSS와 JS 파일들은 기존 구조에서 작업
+3. 로컬 서버에서 `pages/` 내 파일들로 테스트
+
+### 배포 시
+1. `./build-html.sh` 실행하여 루트 디렉토리에 HTML 파일 생성
+2. 기존 URL 구조 유지됨
+3. `./build-css.sh` 실행하여 CSS 번들링 (선택사항)
+
+### 주의사항
+- 루트 디렉토리의 HTML 파일들은 빌드 출력물로 `.gitignore`에 포함됨
+- 개발 시에는 `pages/`의 파일들만 편집
 
 ## 프로젝트 특징
 - **순수 Vanilla JS**: 외부 라이브러리 의존성 없이 구현
@@ -51,7 +73,10 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - **반응형 디자인**: 모바일 및 데스크톱 환경 최적화
 - **접근성 고려**: 시맨틱 HTML, 키보드 내비게이션 지원
 - **사용자 경험**: 실시간 유효성 검사, 직관적인 인터랙션
+- **구조화된 빌드 프로세스**: 자동화된 HTML 파일 생성 및 경로 관리
+- **환경별 설정 지원**: API 엔드포인트의 유연한 환경 변수 구성
 
 ## 향후 개선사항
 - 실제 백엔드 API 연동
 - 사용자 인증 시스템 구현
+- 프로덕션 보안 강화 (CSP, HTTPS, 입력 검증 강화)
