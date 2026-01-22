@@ -1,4 +1,4 @@
-import { request } from '../api.js';
+// import { request } from '../api.js';
 import { validateEmail, validatePassword } from '../utils/validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,17 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * 실시간 유효성 검사 및 버튼 상태 업데이트
+     * @param {boolean} showHelpers - 헬퍼 텍스트 표시 여부
      */
-    function validateInputs() {
+    function validateInputs(showHelpers = false) {
         const emailValue = emailInput.value;
         const passwordValue = passwordInput.value;
 
         let isEmailValid = false;
         let isPasswordValid = false;
 
-        // 이메일 검사 (비어있거나 형식이 틀린 경우 모두 동일한 메시지 - 기획안 반영)
+        // 이메일 검사
         if (!emailValue || !validateEmail(emailValue)) {
-            emailHelper.textContent = "*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
+            if (showHelpers) {
+                emailHelper.textContent = "*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
+            }
         } else {
             emailHelper.textContent = "";
             isEmailValid = true;
@@ -30,9 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 비밀번호 검사
         if (!passwordValue) {
-            passwordHelper.textContent = "*비밀번호를 입력해주세요.";
+            if (showHelpers) {
+                passwordHelper.textContent = "*비밀번호를 입력해주세요.";
+            }
         } else if (!validatePassword(passwordValue)) {
-            passwordHelper.textContent = "* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
+            if (showHelpers) {
+                passwordHelper.textContent = "* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
+            }
         } else {
             passwordHelper.textContent = "";
             isPasswordValid = true;
@@ -48,36 +55,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 입력 시마다 검사 실행
-    emailInput.addEventListener('input', validateInputs);
-    passwordInput.addEventListener('input', validateInputs);
+    // 입력 시마다 검사 실행 (버튼 상태만 업데이트)
+    emailInput.addEventListener('input', () => validateInputs(false));
+    passwordInput.addEventListener('input', () => validateInputs(false));
+
+    // 포커스를 잃었을 때 유효성 검사 결과 표시
+    emailInput.addEventListener('blur', () => validateInputs(true));
+    passwordInput.addEventListener('blur', () => validateInputs(true));
     
-    // 초기 로드 시 실행
-    validateInputs();
+    // 초기 로드 시 실행 (헬퍼 숨김)
+    validateInputs(false);
 
     /**
-     * 로그인 제출 처리
+     * 로그인 제출 처리 (시뮬레이션)
      */
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        try {
-            const data = await request('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
-
-            if (data && data.access_token) {
-                localStorage.setItem('accessToken', data.access_token);
-                window.location.href = 'posts.html';
-            }
-
-        } catch (error) {
-            console.error("로그인 에러:", error);
-            passwordHelper.textContent = "* 아이디 또는 비밀번호를 확인해주세요.";
-        }
+        // 시뮬레이션: 성공적인 로그인 처리
+        localStorage.setItem('user', JSON.stringify({
+            userId: '123',
+            email: emailInput.value,
+            nickname: '더미 사용자',
+            profileImageUrl: './assets/default-profile.png'
+        }));
+        
+        window.location.href = 'posts.html';
     });
 });

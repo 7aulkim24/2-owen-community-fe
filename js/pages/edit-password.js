@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const modifyBtn = document.getElementById('modify-btn');
     const successToast = document.getElementById('success-toast');
 
+    // 터치 상태 관리
+    const touched = {
+        password: false,
+        confirm: false
+    };
+
     /**
      * 유효성 검사 및 버튼 상태 업데이트
      */
@@ -34,13 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1. 비밀번호 검사
         if (!password) {
-            passwordHelper.textContent = '*비밀번호를 입력해주세요';
+            if (touched.password) {
+                passwordHelper.textContent = '*비밀번호를 입력해주세요';
+            }
             isValid = false;
         } else if (!validatePassword(password)) {
-            passwordHelper.textContent = '*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.';
-            isValid = false;
-        } else if (confirm && password !== confirm) {
-            passwordHelper.textContent = '*비밀번호 확인과 다릅니다.';
+            if (touched.password) {
+                passwordHelper.textContent = '*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.';
+            }
             isValid = false;
         } else {
             passwordHelper.textContent = '';
@@ -48,10 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. 비밀번호 확인 검사
         if (!confirm) {
-            confirmHelper.textContent = '*비밀번호를 한번 더 입력해주세요';
+            if (touched.confirm) {
+                confirmHelper.textContent = '*비밀번호를 한번 더 입력해주세요';
+            }
             isValid = false;
         } else if (password !== confirm) {
-            confirmHelper.textContent = '*비밀번호와 다릅니다.';
+            if (touched.confirm) {
+                confirmHelper.textContent = '*비밀번호와 다릅니다.';
+            }
             isValid = false;
         } else {
             confirmHelper.textContent = '';
@@ -69,9 +80,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return isValid;
     }
 
-    // 입력 이벤트 리스너
+    // 입력 이벤트 리스너 (버튼 상태만 체크)
     [passwordInput, confirmInput].forEach(input => {
-        input.addEventListener('input', validateInputs);
+        input.addEventListener('input', () => validateInputs());
+    });
+
+    // 포커스를 잃었을 때 터치 상태 업데이트 및 에러 표시
+    passwordInput.addEventListener('blur', () => {
+        touched.password = true;
+        validateInputs();
+    });
+    confirmInput.addEventListener('blur', () => {
+        touched.confirm = true;
+        validateInputs();
     });
 
     // 수정하기 버튼 클릭

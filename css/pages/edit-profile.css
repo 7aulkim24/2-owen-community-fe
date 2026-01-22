@@ -1,0 +1,75 @@
+/* 회원정보 수정 페이지 전용 */
+.edit-profile-page .auth-box {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.edit-profile-page h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+.profile-edit-section {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 40px;
+}
+
+.profile-edit-section .profile-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #D9D9D9;
+}
+
+.profile-edit-section .change-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #FFFFFF;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.profile-edit-section .change-overlay:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.profile-edit-section .change-overlay:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.input-group.readonly input {
+    background-color: transparent;
+    border: none;
+    padding-left: 0;
+    font-weight: 400;
+    cursor: default;
+}
+
+.input-group.readonly input:focus {
+    outline: none;
+}
+
+.btn-withdraw {
+    display: block;
+    margin-top: 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}

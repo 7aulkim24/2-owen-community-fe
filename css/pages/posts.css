@@ -1,0 +1,112 @@
+/* 메인 레이아웃 */
+main {
+    max-width: var(--max-width);
+    margin: 40px auto;
+}
+
+/* posts.html 전용 (게시글 목록 등) */
+#app:not(.auth-container) {
+    /* 기존 max-width 유지 */
+}
+
+/* 안녕하세요 섹션 */
+.welcome-section {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.welcome-section strong {
+    font-weight: 800;
+}
+
+/* 액션 바 (글쓰기 버튼) */
+.action-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+/* 게시글 목록 */
+#post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 게시글 카드 */
+.post-card {
+    background-color: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+.post-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-bottom: 16px;
+}
+
+.post-stats span {
+    margin-right: 8px;
+}
+
+.post-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin-bottom: 16px;
+    margin-left: -24px; /* 패딩만큼 왼쪽으로 확장 */
+    margin-right: -24px; /* 패딩만큼 오른쪽으로 확장 */
+}
+
+.post-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.author-img {
+    width: 30px;
+    height: 30px;
+    background-color: #D9D9D9;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.author-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 에러 메시지 */
+.error {
+    text-align: center;
+    color: #ff4d4f;
+    padding: 20px;
+}

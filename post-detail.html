@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세 - Owen Community</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/pages/post-detail.css">
+</head>
+<body class="post-detail-view">
+    <header id="header">
+        <div class="header-container">
+            <a href="posts.html" class="btn-back">&lt;</a>
+            <h1 class="header-title">아무 말 대잔치</h1>
+            <div class="profile-icon" id="header-profile-btn">
+                <img src="./assets/default-profile.png" alt="" id="header-profile-img">
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <a href="edit-profile.html">회원정보수정</a>
+                    <a href="edit-password.html">비밀번호수정</a>
+                    <a href="login.html">로그아웃</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="app" class="post-detail-page">
+        <!-- 게시글 상세 영역 -->
+        <article class="post-detail">
+            <header class="post-header">
+                <h2 class="post-detail-title">제목 1</h2>
+                <div class="post-detail-info">
+                    <div class="post-author-group">
+                        <div class="author-img">
+                            <img src="./assets/default-profile.png" alt="">
+                        </div>
+                        <span class="author-name">더미 작성자 1</span>
+                        <span class="post-date">2021-01-01 00:00:00</span>
+                    </div>
+                    <div class="post-actions">
+                        <button class="btn-action">수정</button>
+                        <button class="btn-action" id="btn-delete-post">삭제</button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- 사진처럼 작성자 정보 아래에 위치하는 구분선 -->
+            <div class="post-divider"></div>
+
+            <div class="post-content">
+                <div class="post-image-placeholder">
+                    <!-- 게시글 이미지가 들어갈 자리 -->
+                </div>
+                <p class="post-text">
+                    무엇을 얘기할까요? 아무말이라면, 삶은 항상 놀라운 모험이라고 생각합니다. 우리는 매일 새로운 경험을 하고 배우며 성장합니다. 때로는 어려움과 도전이 있지만, 그것들이 우리를 더 강하고 지혜롭게 만듭니다. 또한 우리는 주변의 사람들과 연결되며 사랑과 지지를 받습니다. 그래서 우리의 삶은 소중하고 의미가 있습니다.
+                    <br><br>
+                    자연도 아름다운 이야기입니다. 우리 주변의 자연은 끝없는 아름다움과 신비로움을 담고 있습니다. 산, 바다, 숲, 하늘 등 모든 것이 우리를 놀라게 만들고 감동시킵니다. 자연은 우리의 생명과 안정을 지키며 우리에게 힘을 주는 곳입니다.
+                    <br><br>
+                    마지막으로, 지식을 향한 탐구는 항상 흥미로운 여정입니다. 우리는 끝없는 지식의 바다에서 배우고 발견할 수 있으며, 이것이 우리를 더 깊이 이해하고 세상을 더 넓게 보게 해줍니다.
+                    <br><br>
+                    그런 의미에서, 삶은 놀라움과 경이로움으로 가득 차 있습니다. 새로운 경험을 즐기고 항상 앞으로 나아가는 것이 중요하다고 생각합니다.
+                </p>
+            </div>
+
+            <!-- 통계 박스 (좋아요, 조회수, 댓글) -->
+            <div class="post-stats-container">
+                <div class="stat-box" id="btn-like">
+                    <span class="stat-count">123</span>
+                    <span class="stat-label">좋아요수</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-count">123</span>
+                    <span class="stat-label">조회수</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-count">123</span>
+                    <span class="stat-label">댓글</span>
+                </div>
+            </div>
+        </article>
+
+        <!-- 댓글 입력 영역 -->
+        <section class="comment-input-section">
+            <textarea placeholder="댓글을 남겨주세요!" id="comment-textarea"></textarea>
+            <div class="comment-submit-bar">
+                <button class="btn-comment-submit" disabled>댓글 등록</button>
+            </div>
+        </section>
+
+        <!-- 댓글 목록 영역 -->
+        <section class="comment-list-section">
+            <div class="comment-item">
+                <div class="comment-header">
+                    <div class="comment-author-info">
+                        <div class="author-img">
+                            <img src="./assets/default-profile.png" alt="">
+                        </div>
+                        <div class="author-meta">
+                            <span class="author-name">더미 작성자 1</span>
+                            <span class="comment-date">2021-01-01 00:00:00</span>
+                        </div>
+                    </div>
+                    <div class="comment-actions">
+                        <button class="btn-action">수정</button>
+                        <button class="btn-action">삭제</button>
+                    </div>
+                </div>
+                <p class="comment-content">댓글 내용</p>
+            </div>
+            <!-- 추가 더미 댓글 -->
+            <div class="comment-item">
+                <div class="comment-header">
+                    <div class="comment-author-info">
+                        <div class="author-img">
+                            <img src="./assets/default-profile.png" alt="">
+                        </div>
+                        <div class="author-meta">
+                            <span class="author-name">더미 작성자 1</span>
+                            <span class="comment-date">2021-01-01 00:00:00</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="comment-content">댓글 내용</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 게시글 삭제 확인 모달 -->
+    <div class="modal-overlay" id="delete-post-modal">
+        <div class="modal">
+            <h3>게시글을 삭제하시겠습니까?</h3>
+            <p>삭제한 내용은 복구 할 수 없습니다.</p>
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel">취소</button>
+                <button class="btn-modal btn-confirm">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 댓글 삭제 확인 모달 (필요시 사용) -->
+    <div class="modal-overlay" id="delete-comment-modal">
+        <div class="modal">
+            <h3>댓글을 삭제하시겠습니까?</h3>
+            <p>삭제한 내용은 복구 할 수 없습니다.</p>
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel">취소</button>
+                <button class="btn-modal btn-confirm">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer">
+        <p>&copy; 2026 Owen Community. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="js/pages/post-detail.js"></script>
+</body>
+</html>
