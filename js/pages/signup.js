@@ -25,9 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nickname: document.getElementById('nickname-helper')
     };
 
-    /**
-     * 프로필 이미지 미리보기 처리
-     */
+    // 프로필 이미지 미리보기 처리
     profileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -52,9 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profile: false
     };
 
-    /**
-     * 전체 유효성 검사 및 버튼 활성화
-     */
+    // 전체 유효성 검사 및 버튼 활성화
     function validateAll() {
         const emailVal = inputs.email.value;
         const passwordVal = inputs.password.value;
@@ -188,12 +184,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 초기 로드 시 실행
     validateAll();
 
-    /**
-     * 회원가입 제출 처리 (시뮬레이션)
-     */
+    // [더미 기능] 회원가입 제출 처리 (백엔드 연결 시 API 호출 필요)
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        alert("회원가입이 완료되었습니다!");
-        window.location.href = 'login.html';
+        const successModal = document.getElementById('success-modal');
+        if (successModal) {
+            successModal.classList.add('show');
+            const confirmBtn = successModal.querySelector('.btn-confirm');
+            confirmBtn.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+        }
     });
 });

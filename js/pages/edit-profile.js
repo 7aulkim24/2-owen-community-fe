@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const nicknameInput = document.getElementById('nickname');
     const nicknameHelper = document.getElementById('nickname-helper');
     const modifyBtn = document.getElementById('modify-btn');
-    const successToast = document.getElementById('success-toast');
+    const successModal = document.getElementById('success-modal');
+    const successConfirmBtn = successModal.querySelector('.btn-confirm');
 
     // 터치 상태 관리
     let isNicknameTouched = false;
@@ -69,18 +70,18 @@ document.addEventListener('DOMContentLoaded', () => {
         validateNicknameInput(true);
     });
 
-    /**
-     * 닉네임 수정 (시뮬레이션)
-     */
+    // [더미 기능] 닉네임 수정 (백엔드 연결 시 API 호출 필요)
     modifyBtn.addEventListener('click', () => {
         if (validateNicknameInput()) {
-            // 시뮬레이션: 성공 토스트 표시
-            successToast.classList.add('show');
-            setTimeout(() => {
-                successToast.classList.remove('show');
-            }, 2000);
+            successModal.classList.add('show');
         }
     });
+
+    if (successConfirmBtn) {
+        successConfirmBtn.addEventListener('click', () => {
+            successModal.classList.remove('show');
+        });
+    }
 
     // 회원 탈퇴 모달
     const withdrawLink = document.getElementById('withdraw-link');
@@ -102,10 +103,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (modalConfirm) {
         modalConfirm.addEventListener('click', () => {
-            // 시뮬레이션: 탈퇴 처리
-            alert("회원 탈퇴가 완료되었습니다.");
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
+            // [더미 기능] 탈퇴 처리 (백엔드 연결 시 API 호출 필요)
+            withdrawModal.classList.remove('show');
+            
+            const successModal = document.getElementById('success-modal');
+            const successTitle = document.getElementById('success-modal-title');
+            const successContent = document.getElementById('success-modal-content');
+            
+            successTitle.textContent = "탈퇴 완료";
+            successContent.textContent = "회원 탈퇴가 완료되었습니다.";
+            successModal.classList.add('show');
+            
+            const confirmBtn = successModal.querySelector('.btn-confirm');
+            confirmBtn.onclick = () => {
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            };
         });
     }
 });

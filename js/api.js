@@ -1,9 +1,7 @@
 export const API_BASE_URL = 'http://localhost:8000';
 
-/**
- * 표준 API 요청 함수
- * 백엔드의 StandardResponse 포맷(code, message, data, details)을 처리합니다.
- */
+// 표준 API 요청 함수
+// 백엔드의 StandardResponse 포맷(code, message, data, details)을 처리합니다.
 export const request = async (url, options = {}) => {
     try {
         const response = await fetch(`${API_BASE_URL}${url}`, {

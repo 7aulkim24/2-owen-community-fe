@@ -1,8 +1,34 @@
 // import { request } from '../api.js';
 
+// 상태 관리
+let editingCommentId = null;
+let deletingCommentId = null;
+
 /**
- * 숫자 포맷팅 (1,000 -> 1k 등)
+ * 커스텀 알림 모달 표시
+ * @param {string} title - 모달 제목
+ * @param {string} content - 모달 내용
+ * @param {function} callback - 확인 버튼 클릭 시 콜백
  */
+function showAlert(title, content, callback = null) {
+    const modal = document.getElementById('alert-modal');
+    const titleEl = document.getElementById('alert-modal-title');
+    const contentEl = document.getElementById('alert-modal-content');
+    const confirmBtn = modal.querySelector('.btn-confirm');
+
+    if (!modal || !titleEl || !contentEl || !confirmBtn) return;
+
+    titleEl.textContent = title;
+    contentEl.textContent = content;
+    modal.classList.add('show');
+
+    confirmBtn.onclick = () => {
+        modal.classList.remove('show');
+        if (callback) callback();
+    };
+}
+
+// 숫자 포맷팅 (1,000 -> 1k 등)
 function formatCount(count) {
     if (count >= 1000) {
         return Math.floor(count / 1000) + 'k';
@@ -10,9 +36,7 @@ function formatCount(count) {
     return count;
 }
 
-/**
- * 날짜 포맷팅
- */
+// 날짜 포맷팅
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleString('ko-KR', {
@@ -26,17 +50,13 @@ function formatDate(dateString) {
     });
 }
 
-/**
- * URL 파라미터에서 게시글 ID 추출
- */
+// URL 파라미터에서 게시글 ID 추출
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id') || '1';
 }
 
-/**
- * 더미 게시글 데이터 생성
- */
+// [더미 데이터] 게시글 상세 정보 (백엔드 연결 시 API 호출로 대체 필요)
 function getDummyPost(postId) {
     return {
         postId: postId,
@@ -54,9 +74,7 @@ function getDummyPost(postId) {
     };
 }
 
-/**
- * 더미 댓글 데이터 생성
- */
+// [더미 데이터] 댓글 목록 (백엔드 연결 시 API 호출로 대체 필요)
 function getDummyComments() {
     return [
         {
@@ -89,9 +107,7 @@ function getDummyComments() {
     ];
 }
 
-/**
- * 게시글 데이터 렌더링
- */
+// 게시글 데이터 렌더링
 function renderPost(post) {
     const postDetail = document.querySelector('.post-detail');
     if (!postDetail) return;
@@ -129,9 +145,7 @@ function renderPost(post) {
     }
 }
 
-/**
- * 댓글 목록 렌더링
- */
+// 댓글 목록 렌더링
 function renderComments(comments) {
     const commentListSection = document.querySelector('.comment-list-section');
     if (!commentListSection) return;
@@ -149,41 +163,35 @@ function renderComments(comments) {
                         <img src="${comment.author.profileImageUrl || './assets/default-profile.png'}" alt="">
                     </div>
                     <div class="author-meta">
-                        <span class="comment-author">${comment.author.nickname}</span>
+                        <span class="author-name">${comment.author.nickname}</span>
                         <span class="comment-date">${formatDate(comment.createdAt)}</span>
                     </div>
                 </div>
                 <div class="comment-actions">
-                    <button class="btn-action btn-edit-comment" onclick="editComment('${comment.commentId}')">수정</button>
-                    <button class="btn-action btn-delete-comment" onclick="deleteComment('${comment.commentId}')">삭제</button>
+                    <button class="btn-action" onclick="editComment('${comment.commentId}')">수정</button>
+                    <button class="btn-action" onclick="deleteComment('${comment.commentId}')">삭제</button>
                 </div>
             </div>
-            <div class="comment-content">${comment.content}</div>
+            <p class="comment-content">${comment.content}</p>
         </div>
     `).join('');
 
     commentListSection.innerHTML = html;
 }
 
-/**
- * 게시글 데이터 로드 (더미 사용)
- */
+// 게시글 데이터 로드 (더미 사용)
 async function loadPost(postId) {
     const post = getDummyPost(postId);
     renderPost(post);
 }
 
-/**
- * 댓글 목록 로드 (더미 사용)
- */
+// 댓글 목록 로드 (더미 사용)
 async function loadComments(postId) {
     const comments = getDummyComments();
     renderComments(comments);
 }
 
-/**
- * 좋아요 토글 (시뮬레이션)
- */
+// 좋아요 토글 (시뮬레이션)
 function toggleLike(postId) {
     const likeBtn = document.getElementById('btn-like');
     const likeCount = document.querySelector('.stat-box#btn-like .stat-count');
@@ -197,43 +205,108 @@ function toggleLike(postId) {
     }
 }
 
-/**
- * 게시글 삭제 (시뮬레이션)
- */
+// 게시글 삭제 모달 열기
 function deletePost(postId) {
-    if (!confirm('게시글을 삭제하시겠습니까?')) return;
-    alert('게시글이 삭제되었습니다.');
-    window.location.href = 'posts.html';
+    const modal = document.getElementById('delete-post-modal');
+    if (modal) modal.classList.add('show');
 }
 
-/**
- * 댓글 작성 (시뮬레이션)
- */
+// 게시글 삭제 실행
+function confirmDeletePost() {
+    showAlert('삭제 완료', '게시글이 삭제되었습니다.', () => {
+        window.location.href = 'posts.html';
+    });
+}
+
+function closeDeletePostModal() {
+    const modal = document.getElementById('delete-post-modal');
+    if (modal) modal.classList.remove('show');
+}
+
+// 댓글 작성/수정 (시뮬레이션)
 function submitComment(postId) {
     const commentTextarea = document.getElementById('comment-textarea');
+    const commentSubmitBtn = document.querySelector('.btn-comment-submit');
     const commentText = commentTextarea.value.trim();
 
     if (!commentText) {
-        alert('댓글 내용을 입력해주세요.');
+        showAlert('알림', '댓글 내용을 입력해주세요.');
         return;
     }
 
-    alert('댓글이 작성되었습니다.');
+    if (editingCommentId) {
+        // [더미 기능] 댓글 수정 로직 (백엔드 연결 시 API 호출 필요)
+        const commentItem = document.querySelector(`.comment-item[data-comment-id="${editingCommentId}"]`);
+        if (commentItem) {
+            const contentDiv = commentItem.querySelector('.comment-content');
+            if (contentDiv) contentDiv.textContent = commentText;
+        }
+        showAlert('수정 완료', '댓글이 수정되었습니다.');
+        
+        // 상태 초기화
+        editingCommentId = null;
+        commentSubmitBtn.textContent = '댓글 등록';
+    } else {
+        // [더미 기능] 댓글 등록 로직 (백엔드 연결 시 API 호출 필요)
+        showAlert('작성 완료', '댓글이 작성되었습니다.');
+        // 실제로는 서버 응답 후 목록 렌더링을 다시 함 (여기선 생략)
+    }
+
     commentTextarea.value = '';
-    // 실제로는 여기서 서버에 보내고 목록을 새로고침함
+    commentSubmitBtn.disabled = true;
+    commentSubmitBtn.classList.remove('active');
 }
 
-/**
- * 댓글 삭제 (시뮬레이션)
- */
+// 댓글 삭제 모달 열기
 window.deleteComment = function(commentId) {
-    if (!confirm('댓글을 삭제하시겠습니까?')) return;
-    const commentItem = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
-    if (commentItem) commentItem.remove();
+    deletingCommentId = commentId;
+    const modal = document.getElementById('delete-comment-modal');
+    if (modal) modal.classList.add('show');
 };
 
+// 댓글 삭제 실행
+function confirmDeleteComment() {
+    if (!deletingCommentId) return;
+    
+    const commentItem = document.querySelector(`.comment-item[data-comment-id="${deletingCommentId}"]`);
+    if (commentItem) commentItem.remove();
+    
+    // 만약 삭제한 댓글이 수정 중이었다면 초기화
+    if (editingCommentId === deletingCommentId) {
+        const commentTextarea = document.getElementById('comment-textarea');
+        const commentSubmitBtn = document.querySelector('.btn-comment-submit');
+        editingCommentId = null;
+        commentTextarea.value = '';
+        commentSubmitBtn.textContent = '댓글 등록';
+    }
+    
+    closeDeleteModal();
+}
+
+function closeDeleteModal() {
+    deletingCommentId = null;
+    const modal = document.getElementById('delete-comment-modal');
+    if (modal) modal.classList.remove('show');
+}
+
+// 댓글 수정 모드로 전환
 window.editComment = function(commentId) {
-    alert('댓글 수정 모달이 열립니다.');
+    const commentItem = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+    if (!commentItem) return;
+
+    const commentContent = commentItem.querySelector('.comment-content').textContent;
+    const commentTextarea = document.getElementById('comment-textarea');
+    const commentSubmitBtn = document.querySelector('.btn-comment-submit');
+
+    // 입력창에 기존 내용 세팅
+    commentTextarea.value = commentContent;
+    commentTextarea.focus();
+    
+    // 버튼 텍스트 변경 및 활성화
+    editingCommentId = commentId;
+    commentSubmitBtn.textContent = '댓글 수정';
+    commentSubmitBtn.disabled = false;
+    commentSubmitBtn.classList.add('active');
 };
 
 // 초기화
@@ -263,6 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const likeBtn = document.getElementById('btn-like');
     const deleteBtn = document.getElementById('btn-delete-post');
     const commentSubmitBtn = document.getElementById('btn-comment-submit');
+    const editBtn = document.querySelector('.post-actions .btn-action:first-child');
 
     if (likeBtn) {
         likeBtn.addEventListener('click', () => toggleLike(postId));
@@ -272,7 +346,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteBtn.addEventListener('click', () => deletePost(postId));
     }
 
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            window.location.href = `edit-post.html?id=${postId}`;
+        });
+    }
+
     if (commentSubmitBtn) {
         commentSubmitBtn.addEventListener('click', () => submitComment(postId));
+    }
+
+    // 댓글 입력 필드 유효성 검사 (버튼 활성화)
+    const commentTextarea = document.getElementById('comment-textarea');
+    if (commentTextarea && commentSubmitBtn) {
+        commentTextarea.addEventListener('input', () => {
+            const hasText = commentTextarea.value.trim().length > 0;
+            commentSubmitBtn.disabled = !hasText;
+            commentSubmitBtn.classList.toggle('active', hasText);
+        });
+    }
+
+    // 댓글 삭제 모달 이벤트
+    const deleteModal = document.getElementById('delete-comment-modal');
+    if (deleteModal) {
+        const confirmBtn = deleteModal.querySelector('.btn-confirm');
+        const cancelBtn = deleteModal.querySelector('.btn-cancel');
+        
+        if (confirmBtn) confirmBtn.addEventListener('click', confirmDeleteComment);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeDeleteModal);
+    }
+
+    // 게시글 삭제 모달 이벤트
+    const deletePostModal = document.getElementById('delete-post-modal');
+    if (deletePostModal) {
+        const confirmBtn = deletePostModal.querySelector('.btn-confirm');
+        const cancelBtn = deletePostModal.querySelector('.btn-cancel');
+        
+        if (confirmBtn) confirmBtn.addEventListener('click', confirmDeletePost);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeDeletePostModal);
     }
 });

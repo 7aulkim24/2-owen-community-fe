@@ -10,10 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailHelper = document.getElementById('email-helper');
     const passwordHelper = document.getElementById('password-helper');
 
-    /**
-     * 실시간 유효성 검사 및 버튼 상태 업데이트
-     * @param {boolean} showHelpers - 헬퍼 텍스트 표시 여부
-     */
+    // 실시간 유효성 검사 및 버튼 상태 업데이트
     function validateInputs(showHelpers = false) {
         const emailValue = emailInput.value;
         const passwordValue = passwordInput.value;
@@ -66,9 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 초기 로드 시 실행 (헬퍼 숨김)
     validateInputs(false);
 
-    /**
-     * 로그인 제출 처리 (시뮬레이션)
-     */
+    // [더미 기능] 로그인 제출 처리 (백엔드 연결 시 API 호출 필요)
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 

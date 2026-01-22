@@ -7,9 +7,7 @@ const LIMIT = 10;
 let isLoading = false;
 let hasNext = true;
 
-/**
- * 숫자 포맷팅 (1,000 -> 1k 등)
- */
+// 숫자 포맷팅 (1,000 -> 1k 등)
 function formatCount(count) {
     if (count >= 1000) {
         return Math.floor(count / 1000) + 'k';
@@ -17,9 +15,7 @@ function formatCount(count) {
     return count;
 }
 
-/**
- * 더미 데이터 생성 함수
- */
+// [더미 데이터] 목록 생성 함수 (백엔드 연결 시 API 호출로 대체 필요)
 function getDummyPosts(offset, limit) {
     const posts = [];
     for (let i = 1; i <= limit; i++) {
@@ -41,9 +37,7 @@ function getDummyPosts(offset, limit) {
     return posts;
 }
 
-/**
- * 게시글 HTML 생성
- */
+// 게시글 HTML 생성
 function createPostHTML(post) {
     // 제목 26자 제한
     const displayTitle = post.title.length > 26 
@@ -84,9 +78,7 @@ function createPostHTML(post) {
     `;
 }
 
-/**
- * 게시글 렌더링
- */
+// 게시글 렌더링
 function renderPosts(posts, append = false) {
     if (!posts || posts.length === 0) {
         if (!append) {
@@ -103,9 +95,7 @@ function renderPosts(posts, append = false) {
     }
 }
 
-/**
- * 데이터 로드 (더미 데이터 사용으로 수정)
- */
+// 데이터 로드 (더미 데이터 사용으로 수정)
 async function loadPosts(append = false) {
     if (isLoading || (!hasNext && append)) return;
     
@@ -124,9 +114,7 @@ async function loadPosts(append = false) {
     }, 500);
 }
 
-/**
- * 인피니티 스크롤 처리
- */
+// 인피니티 스크롤 처리
 function handleScroll() {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 100) {
@@ -158,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCreate = document.getElementById('btn-create-post');
     if (btnCreate) {
         btnCreate.addEventListener('click', () => {
-            location.href = 'post-create.html'; 
+            location.href = 'make-post.html'; 
         });
     }
 

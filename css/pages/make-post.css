@@ -1,0 +1,138 @@
+/* 게시글 작성 페이지 레이아웃 */
+.make-post-container {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 40px auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 페이지 제목 */
+.page-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+/* 게시글 작성 폼 */
+#make-post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 입력 필드 그룹 */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.input-group input[type="text"] {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+/* 본문 입력 영역 */
+.input-group textarea {
+    width: 100%;
+    height: 320px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+}
+
+/* 도움말 텍스트 */
+.helper-text {
+    text-align: center;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+/* 이미지 업로드 영역 */
+.image-upload-group {
+    margin-top: 10px;
+}
+
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-input-wrapper input[type="file"] {
+    display: none;
+}
+
+/* 파일 선택 버튼 */
+.btn-file-select {
+    display: inline-block;
+    background-color: #D9D9D9;
+    color: var(--text-color);
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #BDBDBD;
+}
+
+/* 선택된 파일명 표시 */
+#file-name-display {
+    font-size: 14px;
+    color: var(--secondary-text);
+}
+
+/* 폼 하단 버튼 영역 */
+.form-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* 게시글 등록 버튼 */
+.btn-submit {
+    width: 280px;
+    padding: 12px;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    background-color: #ACA0EB; /* 비활성화 기본 색상 */
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+/* 활성화 상태 (JS에서 제어) */
+.btn-submit.active {
+    background-color: #7F6AEE;
+    cursor: pointer;
+}
+
+/* 반응형 대응 (모바일) */
+@media (max-width: 480px) {
+    .make-post-container {
+        margin: 20px auto;
+    }
+    
+    .input-group textarea {
+        height: 250px;
+    }
+}

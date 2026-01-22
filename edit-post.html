@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 수정 - AWS AI School 2기</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/pages/edit-post.css">
+</head>
+<body>
+    <header id="header">
+        <div class="header-container">
+            <a href="javascript:history.back()" class="btn-back">&lt;</a>
+            <h1 class="header-title">AWS AI School 2기</h1>
+            <div class="profile-icon" id="header-profile-btn">
+                <img src="./assets/default-profile.png" alt="" id="header-profile-img">
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <a href="edit-profile.html">회원정보수정</a>
+                    <a href="edit-password.html">비밀번호수정</a>
+                    <a href="login.html">로그아웃</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="app">
+        <section class="edit-post-container">
+            <h2 class="page-title">게시글 수정</h2>
+            <form id="edit-post-form">
+                <div class="input-group">
+                    <label for="post-title">제목*</label>
+                    <input type="text" id="post-title" name="title" placeholder="제목을 입력해주세요. (최대 26글자)" maxlength="26" required>
+                </div>
+                <div class="input-group">
+                    <label for="post-content">내용*</label>
+                    <textarea id="post-content" name="content" placeholder="내용을 입력해주세요." required></textarea>
+                </div>
+
+                <div class="input-group image-upload-group">
+                    <label>이미지</label>
+                    <div class="file-input-wrapper">
+                        <label for="post-image" class="btn-file-select">파일 선택</label>
+                        <input type="file" id="post-image" name="image" accept="image/*">
+                        <span id="file-name-display">기존 파일 명</span>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <button type="button" class="btn-submit active" id="btn-submit">수정하기</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- 수정 완료 모달 -->
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>수정 완료</h3>
+            <p>게시글이 성공적으로 수정되었습니다.</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-modal btn-confirm">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/pages/edit-post.js"></script>
+</body>
+</html>

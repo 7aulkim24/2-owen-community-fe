@@ -10,6 +10,7 @@
     margin-bottom: 40px;
 }
 
+/* 프로필 이미지 수정 영역 */
 .profile-edit-section {
     position: relative;
     width: 150px;
@@ -25,6 +26,7 @@
     background-color: #D9D9D9;
 }
 
+/* 이미지 변경 오버레이 */
 .profile-edit-section .change-overlay {
     position: absolute;
     top: 50%;
@@ -49,10 +51,7 @@
     background: rgba(0, 0, 0, 0.6);
 }
 
-.profile-edit-section .change-overlay:hover {
-    background: rgba(0, 0, 0, 0.6);
-}
-
+/* 읽기 전용 입력 필드 (이메일 등) */
 .input-group.readonly input {
     background-color: transparent;
     border: none;
@@ -65,6 +64,7 @@
     outline: none;
 }
 
+/* 회원 탈퇴 링크 */
 .btn-withdraw {
     display: block;
     margin-top: 15px;

@@ -10,7 +10,7 @@
     --max-width: 600px; /* 게시글 목록의 폭을 좁게 설정 */
 }
 
-/* 초기화 */
+/* 기본 초기화 */
 * {
     margin: 0;
     padding: 0;
@@ -24,7 +24,7 @@ body {
     line-height: 1.6;
 }
 
-/* Header 스타일 */
+/* 헤더 영역 */
 #header {
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);
@@ -68,7 +68,7 @@ body {
     border-radius: 50%;
 }
 
-/* 인증 페이지 공통 스타일 */
+/* 인증 관련 페이지 (로그인/회원가입 등) */
 .header-simple {
     justify-content: center;
 }
@@ -97,6 +97,7 @@ body {
     font-size: 24px;
 }
 
+/* 입력 필드 그룹 */
 .input-group {
     text-align: left;
     margin-bottom: 15px;
@@ -118,6 +119,7 @@ body {
     font-size: 14px;
 }
 
+/* 도움말 및 에러 메시지 */
 .helper-text {
     color: #FF0000 !important;
     font-size: 12px;
@@ -126,6 +128,7 @@ body {
     display: block !important;
 }
 
+/* 인증 버튼 */
 .btn-auth {
     width: 100%;
     padding: 14px;
@@ -155,7 +158,7 @@ body {
     font-size: 14px;
 }
 
-/* 버튼 공통 스타일 */
+/* 게시글 작성 버튼 */
 .btn-create {
     background-color: var(--primary-color);
     color: var(--white);
@@ -172,7 +175,7 @@ body {
     background-color: var(--primary-hover-color);
 }
 
-/* 모달 */
+/* 모달 오버레이 */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -190,6 +193,7 @@ body {
     display: flex;
 }
 
+/* 모달 본체 */
 .modal {
     background: white;
     padding: 40px;
@@ -237,7 +241,7 @@ body {
     color: white;
 }
 
-/* 토스트 메시지 */
+/* 토스트 알림 */
 .toast {
     position: fixed;
     bottom: 40px;
@@ -265,7 +269,7 @@ body {
     100% { opacity: 0; transform: translate(-50%, 0); }
 }
 
-/* 프로필 드롭다운 */
+/* 프로필 드롭다운 메뉴 */
 .profile-dropdown {
     position: absolute;
     top: 40px;
@@ -273,7 +277,7 @@ body {
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    width: 150px;
+    width: 120px; /* 너비 축소 */
     display: none;
     flex-direction: column;
     overflow: hidden;
@@ -286,10 +290,10 @@ body {
 }
 
 .profile-dropdown a {
-    padding: 12px;
+    padding: 8px; /* 높이(패딩) 축소 */
     text-decoration: none;
     color: var(--text-color);
-    font-size: 14px;
+    font-size: 13px; /* 폰트 크기 조절 */
     text-align: center;
     border-bottom: 1px solid var(--border-color);
 }
@@ -302,7 +306,7 @@ body {
     background-color: #E9E9E9;
 }
 
-/* 뒤로가기 버튼 공통 스타일 */
+/* 뒤로가기 버튼 */
 .btn-back {
     text-decoration: none;
     color: var(--text-color);
@@ -312,13 +316,13 @@ body {
     cursor: pointer;
 }
 
-/* 프로필 아이콘 위치 (헤더 컨테이너 기준 오른쪽 끝) */
+/* 프로필 아이콘 위치 설정 */
 .profile-icon {
     position: absolute;
     right: 0;
 }
 
-/* 헤더 컨테이너: 게시글 영역 폭에 맞춰 중앙 정렬 */
+/* 헤더 중앙 정렬 및 폭 설정 */
 #header .header-container {
     max-width: var(--max-width);
     padding: 0;

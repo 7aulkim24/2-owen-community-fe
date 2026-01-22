@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordHelper = document.getElementById('password-helper');
     const confirmHelper = document.getElementById('password-confirm-helper');
     const modifyBtn = document.getElementById('modify-btn');
-    const successToast = document.getElementById('success-toast');
+    const successModal = document.getElementById('success-modal');
+    const successConfirmBtn = successModal.querySelector('.btn-confirm');
 
     // 터치 상태 관리
     const touched = {
@@ -30,9 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         confirm: false
     };
 
-    /**
-     * 유효성 검사 및 버튼 상태 업데이트
-     */
+    // 유효성 검사 및 버튼 상태 업데이트
     function validateInputs() {
         const password = passwordInput.value;
         const confirm = confirmInput.value;
@@ -95,21 +94,23 @@ document.addEventListener('DOMContentLoaded', () => {
         validateInputs();
     });
 
-    // 수정하기 버튼 클릭
+    // [더미 기능] 수정하기 버튼 클릭 (백엔드 연결 시 API 호출 필요)
     modifyBtn.addEventListener('click', () => {
         if (validateInputs()) {
-            successToast.classList.add('show');
-            setTimeout(() => {
-                successToast.classList.remove('show');
-            }, 2000);
-            
-            // 입력창 초기화 (선택 사항)
+            successModal.classList.add('show');
+        }
+    });
+
+    if (successConfirmBtn) {
+        successConfirmBtn.addEventListener('click', () => {
+            successModal.classList.remove('show');
+            // 입력창 초기화
             passwordInput.value = '';
             confirmInput.value = '';
             modifyBtn.disabled = true;
             modifyBtn.classList.remove('active');
-        }
-    });
+        });
+    }
 
     // 초기 상태 체크
     validateInputs();
