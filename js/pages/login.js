@@ -1,4 +1,4 @@
-import { request } from '../api.js';
+import { post, handleApiError, showToast } from '../api.js';
 import { validateEmail, validatePassword } from '../utils/validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,8 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailHelper = document.getElementById('email-helper');
     const passwordHelper = document.getElementById('password-helper');
 
+    // 각 필드의 터치 여부 기록
+    const touched = {
+        email: false,
+        password: false
+    };
+
     // 실시간 유효성 검사 및 버튼 상태 업데이트
-    function validateInputs(showHelpers = false) {
+    function validateInputs() {
         const emailValue = emailInput.value;
         const passwordValue = passwordInput.value;
 
@@ -20,8 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 이메일 검사
         if (!emailValue || !validateEmail(emailValue)) {
-            if (showHelpers) {
+            if (touched.email) {
                 emailHelper.textContent = "*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
+                emailHelper.style.color = '#e74c3c';
             }
         } else {
             emailHelper.textContent = "";
@@ -30,12 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 비밀번호 검사
         if (!passwordValue) {
-            if (showHelpers) {
+            if (touched.password) {
                 passwordHelper.textContent = "*비밀번호를 입력해주세요.";
+                passwordHelper.style.color = '#e74c3c';
             }
         } else if (!validatePassword(passwordValue)) {
-            if (showHelpers) {
+            if (touched.password) {
                 passwordHelper.textContent = "* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
+                passwordHelper.style.color = '#e74c3c';
             }
         } else {
             passwordHelper.textContent = "";
@@ -53,28 +62,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 입력 시마다 검사 실행 (버튼 상태만 업데이트)
-    emailInput.addEventListener('input', () => validateInputs(false));
-    passwordInput.addEventListener('input', () => validateInputs(false));
+    emailInput.addEventListener('input', () => validateInputs());
+    passwordInput.addEventListener('input', () => validateInputs());
 
-    // 포커스를 잃었을 때 유효성 검사 결과 표시
-    emailInput.addEventListener('blur', () => validateInputs(true));
-    passwordInput.addEventListener('blur', () => validateInputs(true));
+    // 포커스를 잃었을 때 해당 필드를 터치된 것으로 간주하고 유효성 검사 결과 표시
+    emailInput.addEventListener('blur', () => {
+        touched.email = true;
+        validateInputs();
+    });
+    passwordInput.addEventListener('blur', () => {
+        touched.password = true;
+        validateInputs();
+    });
     
-    // 초기 로드 시 실행 (헬퍼 숨김)
-    validateInputs(false);
+    // 초기 로드 시 실행
+    validateInputs();
 
-    // [더미 기능] 로그인 제출 처리 (백엔드 연결 시 API 호출 필요)
+    // 로그인 제출 처리
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 시뮬레이션: 성공적인 로그인 처리
-        localStorage.setItem('user', JSON.stringify({
-            userId: '123',
-            email: emailInput.value,
-            nickname: '더미 사용자',
-            profileImageUrl: './assets/default-profile.png'
-        }));
-        
-        window.location.href = 'posts.html';
+        // 버튼 비활성화 (중복 제출 방지)
+        loginBtn.disabled = true;
+        loginBtn.textContent = '로그인 중...';
+
+        try {
+            const response = await post('/v1/auth/login', {
+                email: emailInput.value,
+                password: passwordInput.value
+            });
+
+            // 로그인 성공 처리
+            showToast('로그인에 성공했습니다!', 'success');
+            
+            // 사용자 정보 저장 (필요 시)
+            localStorage.setItem('user', JSON.stringify(response));
+            
+            // 페이지 이동
+            setTimeout(() => {
+                window.location.href = 'posts.html';
+            }, 1000);
+
+        } catch (error) {
+            // 에러 처리 (api.js의 handleApiError 활용)
+            handleApiError(error, loginForm);
+            
+            // 버튼 복구
+            loginBtn.disabled = false;
+            loginBtn.textContent = '로그인';
+        }
     });
 });

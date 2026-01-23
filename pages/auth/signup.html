@@ -36,25 +36,25 @@
                 <!-- 입력 필드들 -->
                 <div class="input-group">
                     <label for="email">이메일*</label>
-                    <input type="email" id="email" placeholder="이메일을 입력하세요">
+                    <input type="email" id="email" placeholder="이메일을 입력하세요" autocomplete="email">
                     <p id="email-helper" class="helper-text"></p>
                 </div>
 
                 <div class="input-group">
                     <label for="password">비밀번호*</label>
-                    <input type="password" id="password" placeholder="비밀번호를 입력하세요">
+                    <input type="password" id="password" placeholder="비밀번호를 입력하세요" autocomplete="new-password">
                     <p id="password-helper" class="helper-text"></p>
                 </div>
 
                 <div class="input-group">
                     <label for="password-confirm">비밀번호 확인*</label>
-                    <input type="password" id="password-confirm" placeholder="비밀번호를 한번 더 입력하세요">
+                    <input type="password" id="password-confirm" placeholder="비밀번호를 한번 더 입력하세요" autocomplete="new-password">
                     <p id="password-confirm-helper" class="helper-text"></p>
                 </div>
 
                 <div class="input-group">
                     <label for="nickname">닉네임*</label>
-                    <input type="text" id="nickname" placeholder="닉네임을 입력하세요">
+                    <input type="text" id="nickname" placeholder="닉네임을 입력하세요" autocomplete="nickname">
                     <p id="nickname-helper" class="helper-text"></p>
                 </div>
 
@@ -67,12 +67,12 @@
         </section>
     </main>
 
-    <div class="modal-overlay" id="success-modal">
+    <div class="modal-overlay" id="auth-modal">
         <div class="modal">
-            <h3>회원가입 완료</h3>
-            <p>회원가입이 성공적으로 완료되었습니다.</p>
+            <h3 id="modal-title">메시지</h3>
+            <p id="modal-message">내용</p>
             <div class="modal-buttons">
-                <button type="button" class="btn-modal btn-confirm">확인</button>
+                <button type="button" class="btn-modal btn-confirm" id="modal-confirm-btn">확인</button>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-import { request } from '../api.js';
+import { get, post, uploadFile, handleApiError, showToast } from '../api.js';
 import { validateEmail, validatePassword, validateNickname } from '../utils/validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,131 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
         nickname: document.getElementById('nickname-helper')
     };
 
-    // 프로필 이미지 미리보기 처리
-    profileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                profilePreview.src = event.target.result;
-                profilePreview.style.display = 'block';
-                plusIcon.style.display = 'none';
-                helpers.profile.textContent = "";
-                validateAll();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // 각 필드의 터치 여부 기록
-    const touched = {
+    // 중복 확인 상태 관리
+    const availability = {
         email: false,
-        password: false,
-        confirm: false,
-        nickname: false,
-        profile: false
+        nickname: false
     };
 
-    // 전체 유효성 검사 및 버튼 활성화
-    function validateAll() {
-        const emailVal = inputs.email.value;
-        const passwordVal = inputs.password.value;
-        const confirmVal = inputs.confirm.value;
-        const nicknameVal = inputs.nickname.value;
-        const hasProfile = profileInput.files.length > 0;
-
-        let isValid = true;
-
-        // 1. 프로필 이미지 검사
-        if (!hasProfile) {
-            isValid = false;
-            if (touched.profile) {
-                helpers.profile.textContent = "*프로필 사진을 추가해주세요.";
-            }
-        } else {
-            helpers.profile.textContent = "";
-        }
-
-        // 2. 이메일 검사
-        if (!emailVal || !validateEmail(emailVal)) {
-            if (touched.email) {
-                helpers.email.textContent = "*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
-            }
-            isValid = false;
-        } else {
-            helpers.email.textContent = "";
-        }
-
-        // 3. 비밀번호 검사
-        if (!passwordVal) {
-            if (touched.password) {
-                helpers.password.textContent = "*비밀번호를 입력해주세요.";
-            }
-            isValid = false;
-        } else if (!validatePassword(passwordVal)) {
-            if (touched.password) {
-                helpers.password.textContent = "*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
-            }
-            isValid = false;
-        } else {
-            helpers.password.textContent = "";
-        }
-
-        // 4. 비밀번호 확인 검사
-        if (!confirmVal) {
-            if (touched.confirm) {
-                helpers.confirm.textContent = "*비밀번호를 한번더 입력해주세요";
-            }
-            isValid = false;
-        } else if (passwordVal !== confirmVal) {
-            if (touched.confirm) {
-                helpers.confirm.textContent = "*비밀번호가 다릅니다.";
-            }
-            isValid = false;
-        } else {
-            helpers.confirm.textContent = "";
-        }
-
-        // 5. 닉네임 검사
-        const nicknameResult = validateNickname(nicknameVal);
-        if (!nicknameVal) {
-            if (touched.nickname) {
-                helpers.nickname.textContent = "*닉네임을 입력해주세요.";
-            }
-            isValid = false;
-        } else if (!nicknameResult.valid) {
-            if (touched.nickname) {
-                helpers.nickname.textContent = nicknameResult.message;
-            }
-            isValid = false;
-        } else {
-            helpers.nickname.textContent = "";
-        }
-
-        // 버튼 상태 업데이트
-        if (isValid) {
-            signupBtn.disabled = false;
-            signupBtn.classList.add('active');
-        } else {
-            signupBtn.disabled = true;
-            signupBtn.classList.remove('active');
-        }
-    }
-
-    // 입력 시마다 검사
-    Object.keys(inputs).forEach(key => {
-        inputs[key].addEventListener('input', () => {
-            // 입력 중에는 버튼 상태만 체크하고, 이미 터치된 필드만 에러 갱신
-            validateAll();
-        });
-        
-        inputs[key].addEventListener('blur', () => {
-            // 포커스를 잃으면 터치된 것으로 간주하고 에러 메시지 표시
-            touched[key] = true;
-            validateAll();
-        });
-    });
-
+    // 프로필 이미지 미리보기 처리
     profileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -163,37 +45,289 @@ document.addEventListener('DOMContentLoaded', () => {
                 validateAll();
             };
             reader.readAsDataURL(file);
+        } else {
+            // 파일 선택창에서 취소를 누르거나 파일이 없는 경우
+            profilePreview.src = "";
+            profilePreview.style.display = 'none';
+            plusIcon.style.display = 'block';
+            profileInput.value = ""; // input 초기화
+            validateAll();
         }
     });
 
-    // 중복 확인 시뮬레이션
-    inputs.email.addEventListener('blur', () => {
+    // 프로필 이미지 클릭 시 (이미 이미지가 있으면 삭제)
+    document.getElementById('profile-label').addEventListener('click', (e) => {
+        if (profileInput.files.length > 0) {
+            e.preventDefault(); // 파일 선택창 열리는 것 방지
+            profilePreview.src = "";
+            profilePreview.style.display = 'none';
+            plusIcon.style.display = 'block';
+            profileInput.value = ""; // input 초기화
+            validateAll();
+        }
+    });
+
+    // 각 필드의 터치 여부 기록
+    const touched = {
+        email: false,
+        password: false,
+        confirm: false,
+        nickname: false,
+        profile: false
+    };
+
+    // 중복 확인 결과 메시지 고정 여부
+    const errorState = {
+        email: "",
+        nickname: ""
+    };
+
+    // 전체 유효성 검사 및 버튼 활성화
+    function validateAll() {
+        const emailVal = inputs.email.value;
+        const passwordVal = inputs.password.value;
+        const confirmVal = inputs.confirm.value;
+        const nicknameVal = inputs.nickname.value;
+
+        let isValid = true;
+
+        // 1. 프로필 이미지 검사 (필수 아님)
+        helpers.profile.textContent = "";
+
+        // 2. 이메일 검사
+        if (!emailVal || !validateEmail(emailVal)) {
+            if (touched.email) {
+                helpers.email.textContent = "*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
+                helpers.email.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else if (errorState.email) {
+            // 중복 확인 등 에러 상태가 있으면 해당 메시지 유지
+            helpers.email.textContent = errorState.email;
+            helpers.email.style.color = '#e74c3c';
+            isValid = false;
+        } else {
+            // 기본 형식이 유효하고 별도 에러가 없으면 (성공 메시지 상태가 아닐 때만) 초기화
+            if (helpers.email.style.color !== 'rgb(39, 174, 96)') { 
+                helpers.email.textContent = "";
+            }
+            if (!availability.email) isValid = false;
+        }
+
+        // 3. 비밀번호 검사
+        if (!passwordVal) {
+            if (touched.password) {
+                helpers.password.textContent = "*비밀번호를 입력해주세요.";
+                helpers.password.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else if (!validatePassword(passwordVal)) {
+            if (touched.password) {
+                helpers.password.textContent = "*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
+                helpers.password.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else {
+            helpers.password.textContent = "";
+        }
+
+        // 4. 비밀번호 확인 검사
+        if (!confirmVal) {
+            if (touched.confirm) {
+                helpers.confirm.textContent = "*비밀번호를 한번더 입력해주세요";
+                helpers.confirm.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else if (passwordVal !== confirmVal) {
+            if (touched.confirm) {
+                helpers.confirm.textContent = "*비밀번호가 다릅니다.";
+                helpers.confirm.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else {
+            helpers.confirm.textContent = "";
+        }
+
+        // 5. 닉네임 검사
+        const nicknameResult = validateNickname(nicknameVal);
+        if (!nicknameVal) {
+            if (touched.nickname) {
+                helpers.nickname.textContent = "*닉네임을 입력해주세요.";
+                helpers.nickname.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else if (!nicknameResult.valid) {
+            if (touched.nickname) {
+                helpers.nickname.textContent = nicknameResult.message;
+                helpers.nickname.style.color = '#e74c3c';
+            }
+            isValid = false;
+        } else if (errorState.nickname) {
+            helpers.nickname.textContent = errorState.nickname;
+            helpers.nickname.style.color = '#e74c3c';
+            isValid = false;
+        } else {
+            if (helpers.nickname.style.color !== 'rgb(39, 174, 96)') { 
+                helpers.nickname.textContent = "";
+            }
+            if (!availability.nickname) isValid = false;
+        }
+
+        // 버튼 상태 업데이트
+        if (isValid && availability.email && availability.nickname) {
+            signupBtn.disabled = false;
+            signupBtn.classList.add('active');
+        } else {
+            signupBtn.disabled = true;
+            signupBtn.classList.remove('active');
+        }
+    }
+
+    // 입력 시마다 검사
+    Object.keys(inputs).forEach(key => {
+        inputs[key].addEventListener('input', () => {
+            // 입력 중에는 중복 확인 에러 상태 초기화 (재검증 유도)
+            if (key === 'email') errorState.email = "";
+            if (key === 'nickname') errorState.nickname = "";
+            
+            // 입력 중에는 버튼 상태만 체크하고, 이미 터치된 필드만 에러 갱신
+            validateAll();
+        });
+        
+        inputs[key].addEventListener('blur', () => {
+            // 포커스를 잃으면 터치된 것으로 간주하고 에러 메시지 표시
+            touched[key] = true;
+            validateAll();
+        });
+    });
+
+    // 이메일 중복 확인 API 연동
+    inputs.email.addEventListener('blur', async () => {
         const email = inputs.email.value;
-        if (email === 'used@example.com') {
-            helpers.email.textContent = "*이미 사용 중인 이메일입니다.";
+        if (email && validateEmail(email)) {
+            try {
+                const result = await get(`/v1/auth/emails/availability?email=${encodeURIComponent(email)}`);
+                if (result.available) {
+                    helpers.email.textContent = "사용 가능한 이메일입니다.";
+                    helpers.email.style.color = '#27ae60';
+                    availability.email = true;
+                    errorState.email = "";
+                } else {
+                    errorState.email = "*이미 사용 중인 이메일입니다.";
+                    availability.email = false;
+                }
+                validateAll();
+            } catch (error) {
+                console.error('이메일 중복 확인 실패:', error);
+                errorState.email = "*중복 확인 중 오류가 발생했습니다.";
+                availability.email = false;
+                validateAll();
+            }
         }
     });
 
-    inputs.nickname.addEventListener('blur', () => {
+    // 닉네임 중복 확인 API 연동
+    inputs.nickname.addEventListener('blur', async () => {
         const nickname = inputs.nickname.value;
-        if (nickname === '중복닉네임') {
-            helpers.nickname.textContent = "*이미 사용 중인 닉네임입니다.";
+        const nicknameResult = validateNickname(nickname);
+        if (nickname && nicknameResult.valid) {
+            try {
+                const result = await get(`/v1/auth/nicknames/availability?nickname=${encodeURIComponent(nickname)}`);
+                if (result.available) {
+                    helpers.nickname.textContent = "사용 가능한 닉네임입니다.";
+                    helpers.nickname.style.color = '#27ae60';
+                    availability.nickname = true;
+                    errorState.nickname = "";
+                } else {
+                    errorState.nickname = "*이미 사용 중인 닉네임입니다.";
+                    availability.nickname = false;
+                }
+                validateAll();
+            } catch (error) {
+                console.error('닉네임 중복 확인 실패:', error);
+                errorState.nickname = "*중복 확인 중 오류가 발생했습니다.";
+                availability.nickname = false;
+                validateAll();
+            }
         }
     });
-    
+
     // 초기 로드 시 실행
     validateAll();
 
-    // [더미 기능] 회원가입 제출 처리 (백엔드 연결 시 API 호출 필요)
-    signupForm.addEventListener('submit', (e) => {
+    // 회원가입 제출 처리
+    signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const successModal = document.getElementById('success-modal');
-        if (successModal) {
-            successModal.classList.add('show');
-            const confirmBtn = successModal.querySelector('.btn-confirm');
-            confirmBtn.addEventListener('click', () => {
-                window.location.href = 'login.html';
+
+        // 버튼 비활성화
+        signupBtn.disabled = true;
+        signupBtn.textContent = '가입 중...';
+
+        try {
+            let profileImageUrl = null;
+
+            // 1. 프로필 이미지 업로드 (선택된 경우)
+            const profileFile = profileInput.files[0];
+            if (profileFile) {
+                try {
+                    const uploadResult = await uploadFile('/v1/auth/profile-image', profileFile, 'profileImage');
+                    profileImageUrl = uploadResult.profileImageUrl;
+                } catch (uploadError) {
+                    console.error('프로필 이미지 업로드 실패:', uploadError);
+                    throw new Error('프로필 이미지 업로드에 실패했습니다.');
+                }
+            }
+
+            // 2. 회원가입 요청
+            await post('/v1/auth/signup', {
+                email: inputs.email.value,
+                password: inputs.password.value,
+                nickname: inputs.nickname.value,
+                profileImageUrl: profileImageUrl
             });
+
+            // 성공 모달 표시
+            const authModal = document.getElementById('auth-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+            
+            if (authModal) {
+                modalTitle.textContent = '회원가입 완료';
+                modalMessage.textContent = '회원가입이 성공적으로 완료되었습니다.';
+                authModal.classList.add('show');
+                modalConfirmBtn.onclick = () => {
+                    window.location.href = 'login.html';
+                };
+            } else {
+                showToast('회원가입이 완료되었습니다!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+
+        } catch (error) {
+            console.error('회원가입 처리 중 오류:', error);
+            
+            // 에러 모달 표시
+            const authModal = document.getElementById('auth-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+            
+            if (authModal) {
+                modalTitle.textContent = '오류 발생';
+                modalMessage.textContent = error.message || '회원가입 중 오류가 발생했습니다.';
+                authModal.classList.add('show');
+                modalConfirmBtn.onclick = () => {
+                    authModal.classList.remove('show');
+                };
+            } else {
+                handleApiError(error, signupForm);
+            }
+            
+            signupBtn.disabled = false;
+            signupBtn.textContent = '회원가입';
         }
     });
 });
