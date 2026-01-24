@@ -1,4 +1,4 @@
-import { post, handleApiError, showToast } from '../api.js';
+import { post, handleApiError, handleApiSuccess } from '../api.js';
 import { validateEmail, validatePassword } from '../utils/validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 password: passwordInput.value
             });
 
-            // 로그인 성공 처리
-            showToast('로그인에 성공했습니다!', 'success');
+            // 로그인 성공 처리 (출처 기반 메시지 직접 지정)
+            handleApiSuccess(response, '성공적으로 로그인되었습니다. 환영합니다!');
             
-            // 사용자 정보 저장 (필요 시)
-            localStorage.setItem('user', JSON.stringify(response));
+            // 사용자 정보 저장 (data 필드만 저장)
+            localStorage.setItem('user', JSON.stringify(response.data));
             
             // 페이지 이동
             setTimeout(() => {

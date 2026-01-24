@@ -35,6 +35,12 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - **헤더 네비게이션**: 통일된 레이아웃, 프로필 드롭다운 메뉴
 - **인터랙션 요소**: 토스트 메시지, 모달, 반응형 디자인, 상태 시각화
 
+### 6. API 통신 및 에러 처리
+- **표준 응답 규격**: `{ code, data, message: "" }` 구조의 백엔드 응답 처리
+- **책임 분리**: 백엔드는 에러 코드만 전달하며, 모든 한글 메시지는 프론트엔드(`js/error-messages.js`)에서 매핑 관리
+- **출처 기반 메시징**: API 호출 시 성공 메시지를 직접 지정 가능 (`handleApiSuccess`)
+- **자동 인증 처리**: 세션 만료(`UNAUTHORIZED`) 시 자동으로 로그인 페이지 리다이렉트
+
 ## 폴더 구조
 - `pages/`:
   - `auth/`: 인증 관련 페이지 (`login.html`, `signup.html`)
@@ -44,7 +50,8 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
   - `common.css`: 공통 스타일 및 컴포넌트 정의
   - `pages/`: 페이지별 고유 스타일 (`login.css`, `signup.css`, `posts.css`, `post-detail.css`, `make-post.css`, `edit-post.css`, `edit-profile.css`, `edit-password.css`)
 - `js/`:
-  - `api.js`: fetch API를 활용한 통신 모듈
+  - `api.js`: fetch API를 활용한 통신 및 공통 에러/성공 처리 모듈
+  - `error-messages.js`: 백엔드 코드별 한글 메시지 매핑 데이터
   - `pages/`: 각 페이지별 비즈니스 로직 (`login.js`, `signup.js`, `posts.js`, `post-detail.js`, `make-post.js`, `edit-post.js`, `edit-profile.js`, `edit-password.js`)
   - `utils/`: 유효성 검사 등 공통 유틸리티 함수 (`validation.js`)
 - `build-css.sh`: CSS 빌드 스크립트
@@ -68,6 +75,7 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - 개발 시에는 `pages/`의 파일들만 편집
 
 ## 프로젝트 특징
+- **에러 코드 기반 메시지 관리**: 백엔드와 프론트엔드의 책임을 명확히 분리하여 유지보수성 향상
 - **순수 Vanilla JS**: 외부 라이브러리 의존성 없이 구현
 - **모듈화 구조**: CSS, JS 파일의 체계적 분리 및 관리
 - **반응형 디자인**: 모바일 및 데스크톱 환경 최적화
@@ -77,6 +85,5 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - **환경별 설정 지원**: API 엔드포인트의 유연한 환경 변수 구성
 
 ## 향후 개선사항
-- 실제 백엔드 API 연동
-- 사용자 인증 시스템 구현
+- 게시글 및 댓글 기능의 백엔드 연동 심화 (현재 더미 데이터 혼용)
 - 프로덕션 보안 강화 (CSP, HTTPS, 입력 검증 강화)

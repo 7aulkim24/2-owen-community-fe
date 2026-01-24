@@ -1,4 +1,4 @@
-import { get, post, uploadFile, handleApiError, showToast } from '../api.js';
+import { get, post, uploadFile, handleApiError, handleApiSuccess, showToast } from '../api.js';
 import { validateEmail, validatePassword, validateNickname } from '../utils/validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -206,7 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = inputs.email.value;
         if (email && validateEmail(email)) {
             try {
-                const result = await get(`/v1/auth/emails/availability?email=${encodeURIComponent(email)}`);
+                const response = await get(`/v1/auth/emails/availability?email=${encodeURIComponent(email)}`);
+                const result = response.data;
                 if (result.available) {
                     helpers.email.textContent = "사용 가능한 이메일입니다.";
                     helpers.email.style.color = '#27ae60';
@@ -232,7 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const nicknameResult = validateNickname(nickname);
         if (nickname && nicknameResult.valid) {
             try {
-                const result = await get(`/v1/auth/nicknames/availability?nickname=${encodeURIComponent(nickname)}`);
+                const response = await get(`/v1/auth/nicknames/availability?nickname=${encodeURIComponent(nickname)}`);
+                const result = response.data;
                 if (result.available) {
                     helpers.nickname.textContent = "사용 가능한 닉네임입니다.";
                     helpers.nickname.style.color = '#27ae60';
@@ -271,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (profileFile) {
                 try {
                     const uploadResult = await uploadFile('/v1/auth/profile-image', profileFile, 'profileImage');
-                    profileImageUrl = uploadResult.profileImageUrl;
+                    profileImageUrl = uploadResult.data.profileImageUrl;
                 } catch (uploadError) {
                     console.error('프로필 이미지 업로드 실패:', uploadError);
                     throw new Error('프로필 이미지 업로드에 실패했습니다.');
@@ -279,12 +281,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 2. 회원가입 요청
-            await post('/v1/auth/signup', {
+            const signupResponse = await post('/v1/auth/signup', {
                 email: inputs.email.value,
                 password: inputs.password.value,
                 nickname: inputs.nickname.value,
                 profileImageUrl: profileImageUrl
             });
+
+            // 성공 메시지 표준화 (출처 기반 메시지 직접 지정)
+            const successMsg = handleApiSuccess(signupResponse, '회원가입이 성공적으로 완료되었습니다!');
 
             // 성공 모달 표시
             const authModal = document.getElementById('auth-modal');
@@ -294,13 +299,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (authModal) {
                 modalTitle.textContent = '회원가입 완료';
-                modalMessage.textContent = '회원가입이 성공적으로 완료되었습니다.';
+                modalMessage.textContent = successMsg;
                 authModal.classList.add('show');
                 modalConfirmBtn.onclick = () => {
                     window.location.href = 'login.html';
                 };
             } else {
-                showToast('회원가입이 완료되었습니다!', 'success');
+                showToast(successMsg, 'success');
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 1500);
@@ -308,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('회원가입 처리 중 오류:', error);
+            
+            // 에러 메시지 표준화
+            const errorMsg = handleApiError(error, signupForm);
             
             // 에러 모달 표시
             const authModal = document.getElementById('auth-modal');
@@ -317,13 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (authModal) {
                 modalTitle.textContent = '오류 발생';
-                modalMessage.textContent = error.message || '회원가입 중 오류가 발생했습니다.';
+                modalMessage.textContent = errorMsg;
                 authModal.classList.add('show');
                 modalConfirmBtn.onclick = () => {
                     authModal.classList.remove('show');
                 };
-            } else {
-                handleApiError(error, signupForm);
             }
             
             signupBtn.disabled = false;
