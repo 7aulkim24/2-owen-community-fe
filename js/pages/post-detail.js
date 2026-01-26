@@ -330,7 +330,7 @@ window.editComment = function(commentId) {
 
     const commentContent = commentItem.querySelector('.comment-content').textContent;
     const commentTextarea = document.getElementById('comment-textarea');
-    const commentSubmitBtn = document.getElementById('btn-comment-submit');
+    const commentSubmitBtn = document.querySelector('.btn-comment-submit');
 
     // 입력창에 기존 내용 세팅
     commentTextarea.value = commentContent;

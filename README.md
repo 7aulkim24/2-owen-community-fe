@@ -53,6 +53,23 @@ AWS AI School 2기 김은수 - 커뮤니티 서비스 프론트엔드 구현 과
 - `assets/`: 정적 리소스 (기본 프로필 이미지 등)
 - `build-html.sh` / `build-css.sh`: 배포 및 경로 최적화를 위한 빌드 스크립트
 
+## 시작하기
+
+본 프로젝트는 순수 HTML/CSS/JS로 구성되어 있으며, 백엔드 API와의 연동을 위해 **VS Code Live Server** 사용을 강력히 권장합니다.
+
+### 1. 환경 준비
+- **백엔드 실행**: 프론트엔드 기능의 정상 작동을 위해 [백엔드 서버](https://github.com/80-hours-a-week/2-owen-community-be)가 `http://localhost:8000`에서 실행 중이어야 합니다.
+- **익스텐션 설치**: VS Code에서 `Live Server` 익스텐션을 설치합니다.
+
+### 2. 프로젝트 실행
+1. VS Code에서 `2-owen-community-fe` 폴더를 엽니다.
+2. 하단 상태 표시줄의 **[Go Live]** 버튼을 클릭하거나, `pages/auth/login.html` 파일에서 우클릭 후 **[Open with Live Server]**를 선택합니다.
+3. 브라우저에서 `http://localhost:5500` 주소로 접속되는지 확인합니다.
+
+### 3. 주의 사항
+- **CORS 설정**: 백엔드에 프론트엔드 주소(`localhost:5500`)가 CORS 허용 목록에 등록되어 있어야 합니다.
+- **API 연동**: `js/api.js` 파일의 `API_BASE_URL`이 백엔드 주소와 일치하는지 확인하십시오.
+
 ## 프로젝트 특징
 - **No Framework**: React, Vue 등 프레임워크 없이 순수 Vanilla JS로만 복잡한 상태와 UI 관리
 - **에러 중심 설계**: 백엔드와의 명확한 에러 규격을 통해 견고한 예외 처리 구현
