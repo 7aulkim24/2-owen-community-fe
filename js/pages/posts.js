@@ -1,4 +1,4 @@
-import { request } from '../api.js';
+import { get, post, handleApiError, handleApiSuccess, getFullImageUrl } from '../api.js';
 
 // DOM 요소
 const postList = document.getElementById('post-list');
@@ -6,6 +6,16 @@ let currentOffset = 0;
 const LIMIT = 10;
 let isLoading = false;
 let hasNext = true;
+let currentUser = null;
+
+try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+        currentUser = JSON.parse(userStr);
+    }
+} catch (e) {
+    console.error('Failed to parse user from localStorage', e);
+}
 
 // 숫자 포맷팅 (1,000 -> 1k 등)
 function formatCount(count) {
@@ -13,28 +23,6 @@ function formatCount(count) {
         return Math.floor(count / 1000) + 'k';
     }
     return count;
-}
-
-// [더미 데이터] 목록 생성 함수 (백엔드 연결 시 API 호출로 대체 필요)
-function getDummyPosts(offset, limit) {
-    const posts = [];
-    for (let i = 1; i <= limit; i++) {
-        const id = offset + i;
-        posts.push({
-            postId: id.toString(),
-            title: `제목 ${id} - 게시글 제목이 아주 길어질 경우 26자에서 잘리는지 확인하기 위한 테스트 문구입니다.`,
-            content: `게시글 ${id}의 상세 내용입니다. UI/UX 확인을 위한 더미 데이터입니다.`,
-            likeCount: Math.floor(Math.random() * 2000),
-            commentCount: Math.floor(Math.random() * 500),
-            viewCount: Math.floor(Math.random() * 10000),
-            createdAt: new Date().toISOString(),
-            author: {
-                nickname: `작성자 ${id}`,
-                profileImageUrl: './assets/default-profile.png'
-            }
-        });
-    }
-    return posts;
 }
 
 // 게시글 HTML 생성
@@ -56,6 +44,8 @@ function createPostHTML(post) {
         hour12: false
     });
 
+    const profileImg = getFullImageUrl(post.author.profileImageUrl) || './assets/default-profile.png';
+
     return `
         <article class="post-card" onclick="location.href='post-detail.html?id=${post.postId}'">
             <h3 class="post-title">${displayTitle}</h3>
@@ -63,14 +53,14 @@ function createPostHTML(post) {
                 <div class="post-stats">
                     <span>좋아요 ${formatCount(post.likeCount || 0)}</span>
                     <span>댓글 ${formatCount(post.commentCount || 0)}</span>
-                    <span>조회수 ${formatCount(post.viewCount || 0)}</span>
+                    <span>조회수 ${formatCount(post.hits || 0)}</span>
                 </div>
                 <div class="post-date">${dateString}</div>
             </div>
             <div class="post-divider"></div>
             <div class="post-author">
                 <div class="author-img">
-                    <img src="${post.author.profileImageUrl || './assets/default-profile.png'}" alt="">
+                    <img src="${profileImg}" alt="">
                 </div>
                 <span class="author-name">${post.author.nickname}</span>
             </div>
@@ -95,23 +85,30 @@ function renderPosts(posts, append = false) {
     }
 }
 
-// 데이터 로드 (더미 데이터 사용으로 수정)
+// 데이터 로드
 async function loadPosts(append = false) {
     if (isLoading || (!hasNext && append)) return;
     
     isLoading = true;
-    
-    // 시뮬레이션 로딩 지연
-    setTimeout(() => {
-        const dummyItems = getDummyPosts(currentOffset, LIMIT);
-        renderPosts(dummyItems, append);
-        
-        // 50개까지만 로드하도록 설정 (테스트용)
+
+    try {
+        const params = new URLSearchParams({
+            offset: currentOffset,
+            limit: LIMIT
+        });
+        const response = await get(`/v1/posts?${params}`);
+        const items = response?.data?.items || [];
+        const pagination = response?.data?.pagination || null;
+
+        renderPosts(items, append);
+
         currentOffset += LIMIT;
-        hasNext = currentOffset < 50;
-        
+        hasNext = pagination ? pagination.hasNext : items.length === LIMIT;
+    } catch (error) {
+        handleApiError(error);
+    } finally {
         isLoading = false;
-    }, 500);
+    }
 }
 
 // 인피니티 스크롤 처리
@@ -142,11 +139,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // 초기 데이터 로드
     loadPosts();
     
-    // 게시글 작성 버튼 이벤트
+    // 게시글 작성 버튼 이벤트 및 권한 제어
     const btnCreate = document.getElementById('btn-create-post');
     if (btnCreate) {
+        // 로그인 상태가 아니면 버튼 숨김
+        if (!currentUser) {
+            btnCreate.style.display = 'none';
+        }
+
         btnCreate.addEventListener('click', () => {
             location.href = 'make-post.html'; 
+        });
+    }
+
+    // 헤더 프로필 정보 업데이트 및 로그아웃 처리
+    if (headerProfileBtn && currentUser) {
+        const headerProfileImg = headerProfileBtn.querySelector('img');
+        if (headerProfileImg && currentUser.profileImageUrl) {
+            headerProfileImg.src = getFullImageUrl(currentUser.profileImageUrl);
+        }
+    }
+
+    const logoutBtn = document.getElementById('logout-btn') || document.getElementById('logout-link');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await post('/v1/auth/logout');
+                handleApiSuccess(response, {
+                    modal: true,
+                    title: '로그아웃',
+                    code: 'LOGOUT_SUCCESS',
+                    onConfirm: () => {
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                });
+            } catch (error) {
+                handleApiError(error);
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
         });
     }
 

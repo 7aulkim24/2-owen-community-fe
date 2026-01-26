@@ -5,6 +5,18 @@ import { getErrorMessage, getSuccessMessage } from './error-messages.js';
 const currentHost = window.location.hostname;
 export const API_BASE_URL = `http://${currentHost === 'localhost' || currentHost === '127.0.0.1' ? currentHost : 'localhost'}:8000`;
 
+/**
+ * 이미지 경로를 전체 URL로 변환합니다.
+ * @param {string} path - 이미지 경로 (예: /public/image/profile/...)
+ * @returns {string} 전체 URL 또는 기본 이미지 경로
+ */
+export const getFullImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    if (path.startsWith('/public')) return `${API_BASE_URL}${path}`;
+    return path;
+};
+
 // 표준 API 요청 함수
 // 백엔드의 StandardResponse 포맷(code, message, data, details)을 처리합니다.
 export const request = async (url, options = {}) => {
@@ -122,22 +134,83 @@ export const handleApiError = (error, formElement = null) => {
 };
 
 /**
+ * 전역 모달 표시 함수
+ * @param {Object} options - 모달 옵션 { title, message, confirmText, onConfirm, type }
+ */
+export const showModal = ({ title, message, confirmText = '확인', onConfirm = null, type = 'success' }) => {
+    // 기존에 생성된 전역 모달이 있다면 제거 (이벤트 리스너 중첩 방지 및 초기화)
+    const existingModal = document.getElementById('cursor-global-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'cursor-global-modal';
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; z-index: 9999;';
+    
+    modalOverlay.innerHTML = `
+        <div class="modal" style="background: white; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; position: relative;">
+            <h3 id="cursor-global-modal-title" style="font-size: 20px; font-weight: 700; margin-bottom: 15px;"></h3>
+            <p id="cursor-global-modal-message" style="font-size: 14px; color: #000; margin-bottom: 30px;"></p>
+            <div class="modal-buttons" style="display: flex; gap: 10px; justify-content: center;">
+                <button type="button" class="btn-modal btn-confirm" id="cursor-global-modal-confirm" style="flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; background-color: #ACA0EB; color: white;">확인</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modalOverlay);
+
+    const titleEl = modalOverlay.querySelector('#cursor-global-modal-title');
+    const messageEl = modalOverlay.querySelector('#cursor-global-modal-message');
+    const confirmBtn = modalOverlay.querySelector('#cursor-global-modal-confirm');
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    confirmBtn.textContent = confirmText;
+    
+    // 버튼 클릭 이벤트
+    confirmBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        modalOverlay.style.display = 'none'; // 즉시 숨김
+        modalOverlay.remove(); // 요소 제거
+        if (onConfirm) onConfirm();
+    };
+
+    // 오버레이 클릭 시 닫히지 않도록 설정 (중요한 알림이므로)
+    modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) {
+            // e.stopPropagation(); // 막아도 되고 안막아도 됨
+        }
+    };
+};
+
+/**
  * 공통 API 성공 처리 함수
  * @param {Object} response - API 응답 객체 { data, code }
- * @param {boolean|string} successMsgOrShowToast - 표시할 메시지(string) 또는 토스트 표시 여부(boolean)
+ * @param {boolean|string|Object} options - 표시할 메시지(string), 토스트 표시 여부(boolean), 또는 모달 옵션(Object)
  * @returns {string} 매핑된 성공 메시지
  */
-export const handleApiSuccess = (response, successMsgOrShowToast = true) => {
+export const handleApiSuccess = (response, options = true) => {
     let message;
-    
-    if (typeof successMsgOrShowToast === 'string') {
-        // 출처(호출부)에서 직접 메시지를 지정한 경우
-        message = successMsgOrShowToast;
+    const code = response?.code;
+
+    if (typeof options === 'string') {
+        message = options;
         showToast(message, 'success');
+    } else if (typeof options === 'object' && options !== null && options.modal) {
+        // 모달 표시 옵션이 있는 경우
+        // options.code가 있으면 해당 코드로 매핑, 없으면 응답의 code 사용
+        message = options.message || getSuccessMessage(options.code || code);
+        showModal({
+            title: options.title || '알림',
+            message: message,
+            onConfirm: options.onConfirm
+        });
     } else {
-        // 기본 매핑된 메시지 사용
-        message = getSuccessMessage(response.code);
-        if (successMsgOrShowToast === true) {
+        message = getSuccessMessage(code);
+        if (options === true) {
             showToast(message, 'success');
         }
     }
@@ -186,7 +259,7 @@ export const uploadFile = async (url, file, fieldName = 'file') => {
         }
 
         return {
-            data: result.data,
+            data: result.data || {},
             code: result.code
         };
     } catch (error) {

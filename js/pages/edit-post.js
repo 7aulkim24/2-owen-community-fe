@@ -1,9 +1,33 @@
+import { get, post, patch, uploadFile, handleApiError, handleApiSuccess, showToast, getFullImageUrl } from '../api.js';
+
 document.addEventListener('DOMContentLoaded', function() {
+    // 세션 정보 확인
+    let currentUser = null;
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            currentUser = JSON.parse(userStr);
+        }
+    } catch (e) {
+        console.error('Failed to parse user from localStorage', e);
+    }
+
+    if (!currentUser) {
+        showToast('로그인이 필요한 서비스입니다.', 'error');
+        window.location.href = 'login.html';
+        return;
+    }
+
     // 헤더 프로필 드롭다운
     const headerProfileBtn = document.getElementById('header-profile-btn');
     const profileDropdown = document.getElementById('profile-dropdown');
 
     if (headerProfileBtn && profileDropdown) {
+        if (currentUser.profileImageUrl) {
+            const headerProfileImg = headerProfileBtn.querySelector('img');
+            if (headerProfileImg) headerProfileImg.src = getFullImageUrl(currentUser.profileImageUrl);
+        }
+
         headerProfileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             profileDropdown.classList.toggle('show');
@@ -14,24 +38,67 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const logoutBtn = document.getElementById('logout-btn') || document.getElementById('logout-link');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await post('/v1/auth/logout');
+                handleApiSuccess(response, {
+                    modal: true,
+                    title: '로그아웃',
+                    code: 'LOGOUT_SUCCESS',
+                    onConfirm: () => {
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                });
+            } catch (error) {
+                handleApiError(error);
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+
     const btnSubmit = document.getElementById('btn-submit');
     const titleInput = document.getElementById('post-title');
     const contentInput = document.getElementById('post-content');
     const imageInput = document.getElementById('post-image');
     const fileNameDisplay = document.getElementById('file-name-display');
-    const toast = document.getElementById('toast');
+    let currentFileUrl = null;
 
-    // URL에서 postId 추출 (더미용)
+    // URL에서 postId 추출
     const urlParams = new URLSearchParams(window.location.search);
-    const postId = urlParams.get('id') || '1';
+    const postId = urlParams.get('id');
+    if (!postId) {
+        showToast('게시글 ID를 찾을 수 없습니다.', 'error');
+        window.location.href = 'posts.html';
+        return;
+    }
 
-    // [더미 데이터] 기존 데이터 로드 (백엔드 연결 시 API 호출로 대체 필요)
-    function loadExistingPost() {
-        // 실제로는 API 호출이겠지만 여기선 더미 데이터를 채움
-        titleInput.value = `제목 ${postId}`;
-        contentInput.value = `무엇을 얘기할까요? 아무말이라면, 삶은 항상 놀라운 모험이라고 생각합니다. 우리는 매일 새로운 경험을 하고 배우며 성장합니다. 때로는 어려움과 도전이 있지만, 그것들이 우리를 더 강하고 지혜롭게 만듭니다. 또한 우리는 주변의 사람들과 연결되며 사랑과 지지를 받습니다. 그래서 우리의 삶은 소중하고 의미가 있습니다. \n\n자연도 아름다운 이야기입니다. 우리 주변의 자연은 끝없는 아름다움과 신비로움을 담고 있습니다. 산, 바다, 숲, 하늘 등 모든 것이 우리를 놀라게 만들고 감동시킵니다. 자연은 우리의 생명과 안정을 지키며 우리에게 힘을 주는 곳입니다. \n\n마지막으로, 지식을 향한 탐구는 항상 흥미로운 여정입니다. 우리는 끝없는 지식의 바다에서 배우고 발견할 수 있으며, 이것이 우리를 더 깊이 이해하고 세상을 더 넓게 보게 해줍니다. \n\n그런 의미에서, 삶은 놀라움과 경이로움으로 가득 차 있습니다. 새로운 경험을 즐기고 항상 앞으로 나아가는 것이 중요하다고 생각합니다.`;
-        fileNameDisplay.textContent = 'dummy_image.png';
-        updateButtonState();
+    // 기존 데이터 로드
+    async function loadExistingPost() {
+        try {
+            const response = await get(`/v1/posts/${postId}`);
+            const post = response?.data;
+            if (!post) {
+                showToast('게시글 정보를 불러오지 못했습니다.', 'error');
+                window.location.href = 'posts.html';
+                return;
+            }
+            titleInput.value = post.title || '';
+            contentInput.value = post.content || '';
+            currentFileUrl = post.file?.fileUrl || null;
+            if (currentFileUrl) {
+                fileNameDisplay.textContent = currentFileUrl.split('/').pop();
+            } else {
+                fileNameDisplay.textContent = '파일을 선택해주세요.';
+            }
+            updateButtonState();
+        } catch (error) {
+            handleApiError(error);
+        }
     }
 
     // 입력 필드 변경 시 버튼 상태 업데이트
@@ -48,28 +115,46 @@ document.addEventListener('DOMContentLoaded', function() {
     titleInput.addEventListener('input', updateButtonState);
     contentInput.addEventListener('input', updateButtonState);
 
-    // [더미 기능] 수정하기 버튼 클릭 이벤트 (백엔드 연결 시 API 호출 필요)
-    btnSubmit.addEventListener('click', function() {
+    // 수정하기 버튼 클릭 이벤트
+    btnSubmit.addEventListener('click', async function() {
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
 
         if (!title || !content) {
-            toast.textContent = '*제목, 내용을 모두 작성해주세요';
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        } else {
-            // 시뮬레이션: 성공 모달 표시
-            const successModal = document.getElementById('success-modal');
-            if (successModal) {
-                successModal.classList.add('show');
-                const confirmBtn = successModal.querySelector('.btn-confirm');
-                confirmBtn.onclick = () => {
-                    window.location.href = `post-detail.html?id=${postId}`;
-                };
+            showToast('*제목, 내용을 모두 작성해주세요', 'error');
+            return;
+        }
+
+        try {
+            let fileUrl = currentFileUrl;
+            const imageFile = imageInput.files[0];
+            if (imageFile) {
+                try {
+                    const uploadResult = await uploadFile('/v1/posts/image', imageFile, 'postFile');
+                    console.log('Upload Result:', uploadResult); // 디버깅용
+                    fileUrl = uploadResult?.data?.postFileUrl || null;
+                } catch (uploadError) {
+                    console.error('이미지 업로드 실패:', uploadError);
+                    throw uploadError;
+                }
             }
+
+            const response = await patch(`/v1/posts/${postId}`, {
+                title,
+                content,
+                fileUrl
+            });
+
+            handleApiSuccess(response, {
+                modal: true,
+                title: '수정 완료',
+                code: 'POST_UPDATED',
+                onConfirm: () => {
+                    window.location.href = `post-detail.html?id=${postId}`;
+                }
+            });
+        } catch (error) {
+            handleApiError(error);
         }
     });
 

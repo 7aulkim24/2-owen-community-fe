@@ -36,15 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = e.target.files[0];
         if (file) {
             touched.profile = true; // 파일 선택 시 터치된 것으로 간주
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                profilePreview.src = event.target.result;
-                profilePreview.style.display = 'block';
-                plusIcon.style.display = 'none';
-                helpers.profile.textContent = "";
-                validateAll();
+            
+            // FileReader 대신 createObjectURL 사용 (메모리 효율적)
+            const objectUrl = URL.createObjectURL(file);
+            profilePreview.src = objectUrl;
+            profilePreview.style.display = 'block';
+            plusIcon.style.display = 'none';
+            helpers.profile.textContent = "";
+            validateAll();
+
+            // 이미지 로드 후 URL 해제 (메모리 누수 방지)
+            profilePreview.onload = () => {
+                URL.revokeObjectURL(objectUrl);
             };
-            reader.readAsDataURL(file);
         } else {
             // 파일 선택창에서 취소를 누르거나 파일이 없는 경우
             profilePreview.src = "";
@@ -273,10 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (profileFile) {
                 try {
                     const uploadResult = await uploadFile('/v1/auth/profile-image', profileFile, 'profileImage');
-                    profileImageUrl = uploadResult.data.profileImageUrl;
+                    console.log('Upload Result:', uploadResult); // 디버깅용
+                    profileImageUrl = uploadResult?.data?.profileImageUrl || null;
                 } catch (uploadError) {
                     console.error('프로필 이미지 업로드 실패:', uploadError);
-                    throw new Error('프로필 이미지 업로드에 실패했습니다.');
+                    throw uploadError; // 원본 에러를 그대로 던져서 handleApiError가 처리하게 함
                 }
             }
 
@@ -288,50 +293,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileImageUrl: profileImageUrl
             });
 
-            // 성공 메시지 표준화 (출처 기반 메시지 직접 지정)
-            const successMsg = handleApiSuccess(signupResponse, '회원가입이 성공적으로 완료되었습니다!');
-
-            // 성공 모달 표시
-            const authModal = document.getElementById('auth-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalMessage = document.getElementById('modal-message');
-            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-            
-            if (authModal) {
-                modalTitle.textContent = '회원가입 완료';
-                modalMessage.textContent = successMsg;
-                authModal.classList.add('show');
-                modalConfirmBtn.onclick = () => {
+            // 성공 메시지 표준화 (모달 사용)
+            handleApiSuccess(signupResponse, {
+                modal: true,
+                title: '회원가입 완료',
+                code: 'SIGNUP_SUCCESS',
+                onConfirm: () => {
                     window.location.href = 'login.html';
-                };
-            } else {
-                showToast(successMsg, 'success');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1500);
-            }
-
+                }
+            });
         } catch (error) {
             console.error('회원가입 처리 중 오류:', error);
             
             // 에러 메시지 표준화
             const errorMsg = handleApiError(error, signupForm);
             
-            // 에러 모달 표시
-            const authModal = document.getElementById('auth-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalMessage = document.getElementById('modal-message');
-            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-            
-            if (authModal) {
-                modalTitle.textContent = '오류 발생';
-                modalMessage.textContent = errorMsg;
-                authModal.classList.add('show');
-                modalConfirmBtn.onclick = () => {
-                    authModal.classList.remove('show');
-                };
-            }
-            
+            // 에러 시에도 버튼 복구
             signupBtn.disabled = false;
             signupBtn.textContent = '회원가입';
         }

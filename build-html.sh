@@ -47,6 +47,7 @@ echo "내부 링크 경로 수정 중..."
 # 프로필 및 인증 페이지 링크 수정
 sed -i '' 's|href="\.\./profile/|href="|g; s|href="\.\./auth/|href="|g' *.html
 # 게시글 페이지 링크 수정
+sed -i '' 's|href="\.\./posts/list\.html"|href="posts.html"|g' *.html
 sed -i '' 's|href="list\.html"|href="posts.html"|g' *.html
 sed -i '' 's|href="create\.html"|href="make-post.html"|g' *.html
 sed -i '' 's|href="detail\.html"|href="post-detail.html"|g' *.html

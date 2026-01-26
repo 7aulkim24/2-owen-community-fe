@@ -37,13 +37,19 @@ export const ERROR_MESSAGES = {
 };
 
 export const SUCCESS_MESSAGES = {
+    // --- 성공 메시지 ---
     SUCCESS: '요청이 성공적으로 처리되었습니다.',
     CREATED: '정상적으로 생성되었습니다.',
-    UPDATED: '정상적으로 수정되었습니다.',
+    UPDATED: '성공적으로 수정되었습니다.',
     DELETED: '정상적으로 삭제되었습니다.',
     LOGIN_SUCCESS: '성공적으로 로그인되었습니다. 환영합니다!',
     SIGNUP_SUCCESS: '회원가입이 완료되었습니다. 로그인을 진행해주세요.',
     LOGOUT_SUCCESS: '성공적으로 로그아웃되었습니다.',
+    PROFILE_UPDATED: '회원 정보가 성공적으로 수정되었습니다.',
+    PASSWORD_UPDATED: '비밀번호가 변경되었습니다. 보안을 위해 다시 로그인해주세요.',
+    POST_CREATED: '게시글이 성공적으로 작성되었습니다.',
+    POST_UPDATED: '게시글이 성공적으로 수정되었습니다.',
+    POST_DELETED: '게시글이 성공적으로 삭제되었습니다.',
 };
 
 /**
