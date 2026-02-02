@@ -9,7 +9,7 @@
     "build:html": "./scripts/build-html.sh",
     "build:html:prod": "./scripts/build-html.sh prod",
     "build:prod": "npm run build:html:prod && npm run build:css && npm run build:js",
-    "build": "npm run build:html && npm run build:css"
+    "build": "npm run build:html && npm run build:css:dev"
   },
   "keywords": [
     "community",
