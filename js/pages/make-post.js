@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!currentUser) {
         showToast('로그인이 필요한 서비스입니다.', 'error');
-        window.location.href = '/login.html';
+        window.location.replace('/login.html');
         return;
     }
 
@@ -50,13 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
             }
         });
     }
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: '작성 완료',
                 code: 'POST_CREATED',
                 onConfirm: () => {
-                    window.location.href = '/posts.html';
+                    window.location.replace('/posts.html');
                 }
             });
         } catch (error) {

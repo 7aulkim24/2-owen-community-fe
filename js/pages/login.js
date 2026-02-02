@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 페이지 이동
             setTimeout(() => {
-                window.location.href = '/posts.html';
+                window.location.replace('/posts.html');
             }, 1000);
 
         } catch (error) {

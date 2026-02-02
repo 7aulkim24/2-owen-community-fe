@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!currentUser) {
         showToast('로그인이 필요한 서비스입니다.', 'error');
-        window.location.href = '/login.html';
+        window.location.replace('/login.html');
         return;
     }
 
@@ -51,13 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
             }
         });
     }
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 title: '수정 완료',
                 code: 'PROFILE_UPDATED',
                 onConfirm: () => {
-                    window.location.href = '/posts.html';
+                    window.location.replace('/posts.html');
                 }
             });
         } catch (error) {
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     message: '회원 탈퇴가 완료되었습니다.',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 });
             } catch (error) {

@@ -117,7 +117,8 @@ export const handleApiError = (error, formElement = null) => {
         showToast(message, 'error');
         // 세션 만료 시 로그인 페이지로 리다이렉트
         setTimeout(() => {
-            window.location.href = '/login.html';
+            localStorage.removeItem('user');
+            window.location.replace('/login.html');
         }, 1500);
         return message;
     }

@@ -204,13 +204,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
             }
         });
     }

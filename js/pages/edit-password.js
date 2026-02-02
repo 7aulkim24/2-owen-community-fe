@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!currentUser) {
         showToast('로그인이 필요한 서비스입니다.', 'error');
-        window.location.href = '/login.html';
+        window.location.replace('/login.html');
         return;
     }
 
@@ -51,13 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
             }
         });
     }
@@ -159,9 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         await post('/v1/auth/logout');
                     } catch (e) {
                         console.error('Logout failed during password change flow', e);
-                    } finally {
+                    }                     finally {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 }
             });

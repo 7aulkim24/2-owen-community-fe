@@ -169,7 +169,7 @@ async function loadPost(postId, incHits = true) {
         const post = response?.data;
         if (!post) {
             showAlert('오류', '게시글 정보를 불러오지 못했습니다.', () => {
-                window.location.href = '/posts.html';
+                window.location.replace('/posts.html');
             });
             return;
         }
@@ -235,7 +235,7 @@ async function confirmDeletePost() {
             title: '삭제 완료',
             code: 'POST_DELETED',
             onConfirm: () => {
-                window.location.href = '/posts.html';
+                window.location.replace('/posts.html');
             }
         });
     } catch (error) {
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const postId = getPostIdFromUrl();
     if (!postId) {
         showAlert('오류', '게시글 ID를 찾을 수 없습니다.', () => {
-            window.location.href = '/posts.html';
+            window.location.replace('/posts.html');
         });
         return;
     }
@@ -392,13 +392,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = '/login.html';
+                        window.location.replace('/login.html');
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
             }
         });
     }
