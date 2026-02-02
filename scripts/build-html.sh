@@ -9,10 +9,17 @@ set -e  # 에러 발생 시 스크립트 중단
 # 스크립트 위치 기준으로 프로젝트 루트 찾기
 cd "$(dirname "$0")/.."
 
-OUTPUT_DIR="dist"
 MODE="${1:-dev}"
 
-mkdir -p "$OUTPUT_DIR"
+if [ "$MODE" = "prod" ]; then
+    OUTPUT_DIR="dist"
+else
+    OUTPUT_DIR="."
+fi
+
+if [ "$OUTPUT_DIR" != "." ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
 
 echo "HTML 파일들을 $OUTPUT_DIR 디렉토리로 복사합니다..."
 
@@ -68,11 +75,7 @@ if [ "$MODE" = "prod" ]; then
     echo "정적 자산 복사 중..."
     cp -R assets "$OUTPUT_DIR"/assets
 else
-    echo "개발용 정적 자산 연결 중..."
-    # 개발 모드에서는 원본 폴더를 dist에 심볼릭 링크로 연결하여 수정 사항 즉시 반영
-    ln -sfn ../css "$OUTPUT_DIR"/css
-    ln -sfn ../js "$OUTPUT_DIR"/js
-    ln -sfn ../assets "$OUTPUT_DIR"/assets
+    echo "개발 모드: 정적 자산이 이미 루트 디렉토리에 존재하므로 추가 작업을 생략합니다."
 fi
 
 echo "HTML 파일 복사 및 경로 수정 완료!"
@@ -81,6 +84,6 @@ echo "복사된 파일들:"
 
 # 개발용 심볼릭 링크 생성 (선택사항)
 if [ "$MODE" = "dev" ]; then
-    echo "개발 모드: pages/ 디렉토리의 파일들을 사용합니다."
-    echo "빌드된 파일들은 프로덕션 배포용입니다."
+    echo "개발 모드: HTML 파일들이 루트 디렉토리(.)에 생성되었습니다."
+    echo "Live Server 등을 사용하여 루트 디렉토리에서 바로 서빙할 수 있습니다."
 fi
