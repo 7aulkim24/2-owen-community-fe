@@ -7,6 +7,7 @@ const LIMIT = 10;
 let isLoading = false;
 let hasNext = true;
 let currentUser = null;
+let infiniteScrollObserver = null;
 
 try {
     const userStr = localStorage.getItem('user');
@@ -47,7 +48,7 @@ function createPostHTML(post) {
     const profileImg = getFullImageUrl(post.author.profileImageUrl) || './assets/default-profile.png';
 
     return `
-        <article class="post-card" onclick="location.href='post-detail.html?id=${post.postId}'">
+        <article class="post-card" onclick="location.href='/post-detail.html?id=${post.postId}'">
             <h3 class="post-title">${displayTitle}</h3>
             <div class="post-info">
                 <div class="post-stats">
@@ -60,7 +61,7 @@ function createPostHTML(post) {
             <div class="post-divider"></div>
             <div class="post-author">
                 <div class="author-img">
-                    <img src="${profileImg}" alt="">
+                    <img src="${profileImg}" alt="" loading="lazy">
                 </div>
                 <span class="author-name">${post.author.nickname}</span>
             </div>
@@ -104,6 +105,9 @@ async function loadPosts(append = false) {
 
         currentOffset += LIMIT;
         hasNext = pagination ? pagination.hasNext : items.length === LIMIT;
+        if (!hasNext && infiniteScrollObserver) {
+            infiniteScrollObserver.disconnect();
+        }
     } catch (error) {
         handleApiError(error);
     } finally {
@@ -111,12 +115,40 @@ async function loadPosts(append = false) {
     }
 }
 
-// 인피니티 스크롤 처리
-function handleScroll() {
+// 인피니티 스크롤 처리 (IntersectionObserver 미지원 브라우저용)
+function handleScrollFallback() {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 100) {
         loadPosts(true);
     }
+}
+
+function setupInfiniteScroll() {
+    const container = document.getElementById('post-list-container');
+    if (!container) return;
+
+    let sentinel = document.getElementById('infinite-scroll-sentinel');
+    if (!sentinel) {
+        sentinel = document.createElement('div');
+        sentinel.id = 'infinite-scroll-sentinel';
+        container.appendChild(sentinel);
+    }
+
+    if (!('IntersectionObserver' in window)) {
+        window.addEventListener('scroll', handleScrollFallback);
+        return;
+    }
+
+    infiniteScrollObserver = new IntersectionObserver(
+        (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                loadPosts(true);
+            }
+        },
+        { rootMargin: '200px 0px' }
+    );
+
+    infiniteScrollObserver.observe(sentinel);
 }
 
 // 초기화
@@ -148,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         btnCreate.addEventListener('click', () => {
-            location.href = 'make-post.html'; 
+            location.href = '/make-post.html'; 
         });
     }
 
@@ -172,17 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = 'login.html';
+                        window.location.href = '/login.html';
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
             }
         });
     }
 
-    // 인피니티 스크롤 이벤트 등록
-    window.addEventListener('scroll', handleScroll);
+    // 인피니티 스크롤 초기화
+    setupInfiniteScroll();
 });

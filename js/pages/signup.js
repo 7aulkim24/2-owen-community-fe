@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: '회원가입 완료',
                 code: 'SIGNUP_SUCCESS',
                 onConfirm: () => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login.html';
                 }
             });
         } catch (error) {

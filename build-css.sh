@@ -16,6 +16,18 @@ cat css/pages/*.css >> dist/css/style.css
 echo "번들링 완료: dist/css/style.css"
 echo "파일 크기: $(wc -c < dist/css/style.css) bytes"
 
+# 프로덕션 최소화 (dev 모드 제외)
+if [ "$1" != "dev" ]; then
+    echo "CSS 최소화 실행 중..."
+    if ! command -v npx >/dev/null 2>&1; then
+        echo "Error: npx를 찾을 수 없습니다. Node.js/npm 설치 후 다시 실행하세요."
+        exit 1
+    fi
+    npx esbuild dist/css/style.css --minify --outfile=dist/css/style.min.css
+    echo "최소화 완료: dist/css/style.min.css"
+    echo "파일 크기: $(wc -c < dist/css/style.min.css) bytes"
+fi
+
 # 개발용 심볼릭 링크 생성 (선택사항)
 if [ "$1" = "dev" ]; then
     echo "개발 모드: 개별 CSS 파일들을 사용합니다."

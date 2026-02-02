@@ -101,7 +101,7 @@ function renderPost(post) {
     const imagePlaceholder = document.querySelector('.post-image-placeholder');
     if (imagePlaceholder) {
         if (post.file && post.file.fileUrl) {
-            imagePlaceholder.innerHTML = `<img src="${getFullImageUrl(post.file.fileUrl)}" alt="게시글 이미지" class="post-detail-image">`;
+            imagePlaceholder.innerHTML = `<img src="${getFullImageUrl(post.file.fileUrl)}" alt="게시글 이미지" class="post-detail-image" loading="lazy">`;
             imagePlaceholder.style.display = 'block';
         } else {
             imagePlaceholder.innerHTML = '';
@@ -140,7 +140,7 @@ function renderComments(comments) {
                 <div class="comment-header">
                     <div class="comment-author-info">
                         <div class="author-img">
-                            <img src="${profileImg}" alt="">
+                            <img src="${profileImg}" alt="" loading="lazy">
                         </div>
                         <div class="author-meta">
                             <span class="author-name">${comment.author.nickname}</span>
@@ -169,7 +169,7 @@ async function loadPost(postId, incHits = true) {
         const post = response?.data;
         if (!post) {
             showAlert('오류', '게시글 정보를 불러오지 못했습니다.', () => {
-                window.location.href = 'posts.html';
+                window.location.href = '/posts.html';
             });
             return;
         }
@@ -235,7 +235,7 @@ async function confirmDeletePost() {
             title: '삭제 완료',
             code: 'POST_DELETED',
             onConfirm: () => {
-                window.location.href = 'posts.html';
+                window.location.href = '/posts.html';
             }
         });
     } catch (error) {
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const postId = getPostIdFromUrl();
     if (!postId) {
         showAlert('오류', '게시글 ID를 찾을 수 없습니다.', () => {
-            window.location.href = 'posts.html';
+            window.location.href = '/posts.html';
         });
         return;
     }
@@ -392,13 +392,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = 'login.html';
+                        window.location.href = '/login.html';
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
             }
         });
     }
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (editBtn) {
         editBtn.addEventListener('click', () => {
-            window.location.href = `edit-post.html?id=${postId}`;
+            window.location.href = `/edit-post.html?id=${postId}`;
         });
     }
 

@@ -30,6 +30,9 @@ export const request = async (url, options = {}) => {
             },
         });
         
+        // 응답 헤더에서 Request ID 추출
+        const requestId = response.headers.get('X-Request-ID') || 'LOCAL';
+        
         // 204 No Content 처리
         if (response.status === 204) return null;
         
@@ -41,6 +44,7 @@ export const request = async (url, options = {}) => {
             const error = new Error(errorMessage);
             error.code = result.code;
             error.details = result.details;
+            error.requestId = requestId; // 에러 객체에 ID 주입
             throw error;
         }
         
@@ -50,11 +54,15 @@ export const request = async (url, options = {}) => {
             code: result.code
         };
     } catch (error) {
-        if (error instanceof TypeError && error.message === 'Load failed') {
-            console.error('Network Error: 서버에 연결할 수 없거나 CORS 정책에 의해 차단되었습니다. (URL:', `${API_BASE_URL}${url}`, ')');
-        } else {
-            console.error('API Error:', error);
-        }
+        // 에러 발생 지점과 ID를 명확히 출력
+        const location = error.requestId ? 'Backend/DB' : 'Frontend/Network';
+        console.error(`[${error.requestId || 'N/A'}] [${location}] Error:`, {
+            message: error.message,
+            code: error.code,
+            url: `${API_BASE_URL}${url}`,
+            options: options,
+            stack: error.stack
+        });
         throw error;
     }
 };
@@ -109,7 +117,7 @@ export const handleApiError = (error, formElement = null) => {
         showToast(message, 'error');
         // 세션 만료 시 로그인 페이지로 리다이렉트
         setTimeout(() => {
-            window.location.href = '/pages/auth/login.html';
+            window.location.href = '/login.html';
         }, 1500);
         return message;
     }
@@ -249,12 +257,16 @@ export const uploadFile = async (url, file, fieldName = 'file') => {
             // multipart/form-data와 함께 boundary를 설정합니다.
         });
 
+        // 응답 헤더에서 Request ID 추출
+        const requestId = response.headers.get('X-Request-ID') || 'LOCAL';
+
         const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
             const errorMessage = result.message || '파일 업로드에 실패했습니다.';
             const error = new Error(errorMessage);
             error.code = result.code;
+            error.requestId = requestId; // 에러 객체에 ID 주입
             throw error;
         }
 
@@ -263,7 +275,14 @@ export const uploadFile = async (url, file, fieldName = 'file') => {
             code: result.code
         };
     } catch (error) {
-        console.error('Upload Error:', error);
+        // 에러 발생 지점과 ID를 명확히 출력
+        const location = error.requestId ? 'Backend/DB' : 'Frontend/Network';
+        console.error(`[${error.requestId || 'N/A'}] [${location}] Upload Error:`, {
+            message: error.message,
+            code: error.code,
+            url: `${API_BASE_URL}${url}`,
+            stack: error.stack
+        });
         throw error;
     }
 };

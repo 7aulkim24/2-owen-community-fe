@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!currentUser) {
         showToast('로그인이 필요한 서비스입니다.', 'error');
-        window.location.href = 'login.html';
+        window.location.href = '/login.html';
         return;
     }
 
@@ -50,13 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     code: 'LOGOUT_SUCCESS',
                     onConfirm: () => {
                         localStorage.removeItem('user');
-                        window.location.href = 'login.html';
+                        window.location.href = '/login.html';
                     }
                 });
             } catch (error) {
                 handleApiError(error);
                 localStorage.removeItem('user');
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
             }
         });
     }
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const postId = urlParams.get('id');
     if (!postId) {
         showToast('게시글 ID를 찾을 수 없습니다.', 'error');
-        window.location.href = 'posts.html';
+        window.location.href = '/posts.html';
         return;
     }
 
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const post = response?.data;
             if (!post) {
                 showToast('게시글 정보를 불러오지 못했습니다.', 'error');
-                window.location.href = 'posts.html';
+                window.location.href = '/posts.html';
                 return;
             }
             titleInput.value = post.title || '';

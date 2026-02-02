@@ -12,7 +12,7 @@
         <div class="header-container">
             <h1 class="header-title">AWS AI School 2기</h1>
             <div class="profile-icon" id="header-profile-btn">
-                <img src="./assets/default-profile.png" alt="" id="header-profile-img">
+                <img loading="lazy" loading="lazy" src="./assets/default-profile.png" alt="" id="header-profile-img">
                 <div class="profile-dropdown" id="profile-dropdown">
                     <a href="../profile/edit-profile.html">회원정보수정</a>
                     <a href="../profile/edit-password.html">비밀번호수정</a>
@@ -33,6 +33,7 @@
                 <button id="btn-create-post" class="btn-create">게시글 작성</button>
             </div>
             <div id="post-list">
+            <div id="infinite-scroll-sentinel" aria-hidden="true"></div>
                 <!-- 게시글 데이터가 여기에 렌더링됩니다 -->
             </div>
         </section>

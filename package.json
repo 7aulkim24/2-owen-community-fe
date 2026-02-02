@@ -5,10 +5,20 @@
   "scripts": {
     "build:css": "./build-css.sh",
     "build:css:dev": "./build-css.sh dev",
+    "build:js": "./build-js.sh",
     "build:html": "./build-html.sh",
+    "build:html:prod": "./build-html.sh prod",
+    "build:prod": "npm run build:html:prod && npm run build:css && npm run build:js",
     "build": "npm run build:html && npm run build:css"
   },
-  "keywords": ["community", "frontend", "css"],
+  "keywords": [
+    "community",
+    "frontend",
+    "css"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.27.2"
+  }
 }
