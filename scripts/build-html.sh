@@ -6,15 +6,15 @@
 
 set -e  # 에러 발생 시 스크립트 중단
 
-OUTPUT_DIR="."
+# 스크립트 위치 기준으로 프로젝트 루트 찾기
+cd "$(dirname "$0")/.."
+
+OUTPUT_DIR="dist"
 MODE="${1:-dev}"
 
-if [ "$MODE" = "prod" ]; then
-    OUTPUT_DIR="dist"
-    mkdir -p "$OUTPUT_DIR"
-fi
+mkdir -p "$OUTPUT_DIR"
 
-echo "HTML 파일들을 루트 디렉토리로 복사합니다..."
+echo "HTML 파일들을 $OUTPUT_DIR 디렉토리로 복사합니다..."
 
 # 소스 파일 존재 확인
 if [ ! -f "pages/auth/login.html" ] || [ ! -f "pages/auth/signup.html" ]; then
@@ -67,6 +67,12 @@ if [ "$MODE" = "prod" ]; then
     (cd "$OUTPUT_DIR" && sed -i '' '/css\/pages\//d' *.html)
     echo "정적 자산 복사 중..."
     cp -R assets "$OUTPUT_DIR"/assets
+else
+    echo "개발용 정적 자산 연결 중..."
+    # 개발 모드에서는 원본 폴더를 dist에 심볼릭 링크로 연결하여 수정 사항 즉시 반영
+    ln -sfn ../css "$OUTPUT_DIR"/css
+    ln -sfn ../js "$OUTPUT_DIR"/js
+    ln -sfn ../assets "$OUTPUT_DIR"/assets
 fi
 
 echo "HTML 파일 복사 및 경로 수정 완료!"

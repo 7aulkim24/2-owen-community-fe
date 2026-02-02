@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Frontend for community application",
   "scripts": {
-    "build:css": "./build-css.sh",
-    "build:css:dev": "./build-css.sh dev",
-    "build:js": "./build-js.sh",
-    "build:html": "./build-html.sh",
-    "build:html:prod": "./build-html.sh prod",
+    "build:css": "./scripts/build-css.sh",
+    "build:css:dev": "./scripts/build-css.sh dev",
+    "build:js": "./scripts/build-js.sh",
+    "build:html": "./scripts/build-html.sh",
+    "build:html:prod": "./scripts/build-html.sh prod",
     "build:prod": "npm run build:html:prod && npm run build:css && npm run build:js",
     "build": "npm run build:html && npm run build:css"
   },
