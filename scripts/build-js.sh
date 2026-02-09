@@ -10,7 +10,17 @@ set -e
 cd "$(dirname "$0")/.."
 
 if [ "$1" = "dev" ]; then
-    echo "개발 모드: JS 번들링을 건너뜁니다."
+    echo "개발 모드: JS 파일들을 dist 디렉토리로 복사합니다."
+    
+    # 출력 디렉토리 생성
+    mkdir -p dist/js
+    mkdir -p dist/js/pages
+    mkdir -p dist/js/utils
+    
+    # JS 파일들 복사
+    cp -R js/* dist/js/
+    
+    echo "JS 파일 복사 완료: dist/js/"
     exit 0
 fi
 

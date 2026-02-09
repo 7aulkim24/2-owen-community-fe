@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AWS AI School 2기</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="../../css/common.css">
     <link rel="stylesheet" href="../../css/pages/posts.css">
 </head>
@@ -33,9 +34,10 @@
                 <button id="btn-create-post" class="btn-create">게시글 작성</button>
             </div>
             <div id="post-list">
-            <div id="infinite-scroll-sentinel" aria-hidden="true"></div>
                 <!-- 게시글 데이터가 여기에 렌더링됩니다 -->
             </div>
+            <!-- sentinel을 post-list 외부에 배치하여 innerHTML 덮어쓰기로부터 보호 -->
+            <div id="infinite-scroll-sentinel" aria-hidden="true"></div>
         </section>
     </main>
 

@@ -104,7 +104,8 @@ async function loadPosts(append = false) {
         renderPosts(items, append);
 
         currentOffset += LIMIT;
-        hasNext = pagination ? pagination.hasNext : items.length === LIMIT;
+        // 백엔드 메타데이터를 우선 사용, 없을 경우에만 false로 fallback
+        hasNext = pagination?.hasNext ?? false;
         if (!hasNext && infiniteScrollObserver) {
             infiniteScrollObserver.disconnect();
         }
@@ -123,20 +124,35 @@ function handleScrollFallback() {
     }
 }
 
-function setupInfiniteScroll() {
-    const container = document.getElementById('post-list-container');
-    if (!container) return;
+// 데이터 초기화 및 재로딩 함수
+function resetAndReload() {
+    currentOffset = 0;
+    hasNext = true;
+    postList.innerHTML = '';
+    if (infiniteScrollObserver) {
+        infiniteScrollObserver.disconnect();
+    }
+    loadPosts(false);
+    setupInfiniteScroll();
+}
 
-    let sentinel = document.getElementById('infinite-scroll-sentinel');
+function setupInfiniteScroll() {
+    // HTML에 이미 정의된 sentinel 요소를 사용 (중복 생성 방지)
+    const sentinel = document.getElementById('infinite-scroll-sentinel');
     if (!sentinel) {
-        sentinel = document.createElement('div');
-        sentinel.id = 'infinite-scroll-sentinel';
-        container.appendChild(sentinel);
+        console.error('infinite-scroll-sentinel element not found in HTML');
+        return;
     }
 
+    // 구형 브라우저 fallback
     if (!('IntersectionObserver' in window)) {
         window.addEventListener('scroll', handleScrollFallback);
         return;
+    }
+
+    // 이미 observer가 있다면 재사용하지 않고 새로 생성
+    if (infiniteScrollObserver) {
+        infiniteScrollObserver.disconnect();
     }
 
     infiniteScrollObserver = new IntersectionObserver(

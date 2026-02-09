@@ -73,7 +73,8 @@ if [ "$MODE" = "prod" ]; then
     (cd "$OUTPUT_DIR" && sed -i '' 's|css/common\.css|css/style.min.css|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i '' '/css\/pages\//d' *.html)
     echo "정적 자산 복사 중..."
-    cp -R assets "$OUTPUT_DIR"/assets
+    rm -rf "$OUTPUT_DIR"/assets
+    cp -R assets "$OUTPUT_DIR"/
 else
     echo "개발 모드: 정적 자산이 이미 루트 디렉토리에 존재하므로 추가 작업을 생략합니다."
 fi
