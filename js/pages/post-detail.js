@@ -97,16 +97,71 @@ function renderPost(post) {
     if (viewCount) viewCount.textContent = formatCount(post.hits || 0);
     if (commentCount) commentCount.textContent = formatCount(post.commentCount || 0);
 
-    // 게시글 이미지 렌더링
-    const imagePlaceholder = document.querySelector('.post-image-placeholder');
-    if (imagePlaceholder) {
-        if (post.file && post.file.fileUrl) {
-            imagePlaceholder.innerHTML = `<img src="${getFullImageUrl(post.file.fileUrl)}" alt="게시글 이미지" class="post-detail-image" loading="lazy">`;
-            imagePlaceholder.style.display = 'block';
-        } else {
-            imagePlaceholder.innerHTML = '';
-            imagePlaceholder.style.display = 'none';
+    // 게시글 이미지 캐러셀 렌더링
+    const carouselContainer = document.getElementById('post-carousel');
+    const carouselImage = carouselContainer?.querySelector('.carousel-image');
+    const carouselIndicator = document.getElementById('carousel-indicator');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+
+    if (post.files && post.files.length > 0) {
+        // 이미지가 있을 때 캐러셀 표시
+        carouselContainer.style.display = 'block';
+        
+        // 캐러셀 상태 관리
+        let currentImageIndex = 0;
+        const totalImages = post.files.length;
+        
+        // 이미지 표시 함수
+        function showImage(index) {
+            currentImageIndex = index;
+            const imageData = post.files[currentImageIndex];
+            if (carouselImage && imageData) {
+                carouselImage.src = getFullImageUrl(imageData.imageUrl);
+                carouselImage.alt = `게시글 이미지 ${currentImageIndex + 1}/${totalImages}`;
+            }
+            
+            // 인디케이터 업데이트
+            if (carouselIndicator) {
+                carouselIndicator.textContent = `${currentImageIndex + 1} / ${totalImages}`;
+            }
+            
+            // 버튼 상태 업데이트
+            if (prevBtn) prevBtn.disabled = currentImageIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentImageIndex === totalImages - 1;
         }
+        
+        // 이전/다음 버튼 이벤트
+        if (prevBtn) {
+            prevBtn.onclick = () => {
+                if (currentImageIndex > 0) {
+                    showImage(currentImageIndex - 1);
+                }
+            };
+        }
+        
+        if (nextBtn) {
+            nextBtn.onclick = () => {
+                if (currentImageIndex < totalImages - 1) {
+                    showImage(currentImageIndex + 1);
+                }
+            };
+        }
+        
+        // 이미지 1장일 때 버튼 숨기기
+        if (totalImages === 1) {
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+        } else {
+            if (prevBtn) prevBtn.style.display = 'flex';
+            if (nextBtn) nextBtn.style.display = 'flex';
+        }
+        
+        // 초기 이미지 표시
+        showImage(0);
+    } else {
+        // 이미지가 없으면 캐러셀 숨김
+        carouselContainer.style.display = 'none';
     }
 
     // 좋아요 상태

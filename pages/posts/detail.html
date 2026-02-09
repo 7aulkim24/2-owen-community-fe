@@ -48,8 +48,14 @@
             <div class="post-divider"></div>
 
             <div class="post-content">
-                <div class="post-image-placeholder">
-                    <!-- 게시글 이미지가 들어갈 자리 -->
+                <!-- 게시글 이미지 캐러셀 -->
+                <div class="post-carousel" id="post-carousel" style="display: none;">
+                    <button type="button" class="carousel-btn carousel-prev" id="carousel-prev">‹</button>
+                    <div class="carousel-images-wrapper">
+                        <img class="carousel-image" src="" alt="게시글 이미지" loading="lazy">
+                    </div>
+                    <button type="button" class="carousel-btn carousel-next" id="carousel-next">›</button>
+                    <div class="carousel-indicator" id="carousel-indicator">1 / 1</div>
                 </div>
                 <p class="post-text"></p>
             </div>
