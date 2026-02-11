@@ -1,9 +1,10 @@
 import { getErrorMessage, getSuccessMessage } from './error-messages.js';
 
-// API 베이스 URL 설정
-// 브라우저의 현재 호스트명에 맞춰 localhost 또는 127.0.0.1을 유연하게 선택합니다.
+// API 베이스 URL 설정 (빌드 시 환경변수에서 주입됨)
+// __API_BASE_URL__은 esbuild의 define 옵션으로 치환됨
+const ENV_API_BASE_URL = typeof __API_BASE_URL__ !== 'undefined' ? __API_BASE_URL__ : null;
 const currentHost = window.location.hostname;
-export const API_BASE_URL = `http://${currentHost === 'localhost' || currentHost === '127.0.0.1' ? currentHost : 'localhost'}:8000`;
+export const API_BASE_URL = ENV_API_BASE_URL || `http://${currentHost === 'localhost' || currentHost === '127.0.0.1' ? currentHost : 'localhost'}:8000`;
 
 /**
  * 이미지 경로를 전체 URL로 변환합니다.

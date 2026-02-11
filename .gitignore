@@ -14,6 +14,9 @@ Thumbs.db
 
 # Environment variables
 .env
+.env.production
+.env.*
+!.env.production.template
 *.env.local
 
 # Build outputs
