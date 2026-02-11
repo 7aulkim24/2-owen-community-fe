@@ -56,22 +56,42 @@ cp pages/profile/edit-password.html "$OUTPUT_DIR/edit-password.html"
 
 # 경로 수정: 개발용 상대경로를 프로덕션용 절대경로로 변경
 echo "CSS 및 JS 경로 수정 중..."
-(cd "$OUTPUT_DIR" && sed -i '' 's|../../css/|css/|g; s|../../js/|js/|g' *.html)
+# macOS와 Linux 모두 호환되도록 수정
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    (cd "$OUTPUT_DIR" && sed -i '' 's|../../css/|css/|g; s|../../js/|js/|g' *.html)
+else
+    # Linux
+    (cd "$OUTPUT_DIR" && sed -i 's|../../css/|css/|g; s|../../js/|js/|g' *.html)
+fi
 
 echo "내부 링크 경로 수정 중..."
 # 프로필 및 인증 페이지 링크 수정
-(cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./profile/|href="|g; s|href="\.\./auth/|href="|g' *.html)
-# 게시글 페이지 링크 수정
-(cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./posts/list\.html"|href="posts.html"|g' *.html)
-(cd "$OUTPUT_DIR" && sed -i '' 's|href="list\.html"|href="posts.html"|g' *.html)
-(cd "$OUTPUT_DIR" && sed -i '' 's|href="create\.html"|href="make-post.html"|g' *.html)
-(cd "$OUTPUT_DIR" && sed -i '' 's|href="detail\.html"|href="post-detail.html"|g' *.html)
-(cd "$OUTPUT_DIR" && sed -i '' 's|href="edit\.html"|href="edit-post.html"|g' *.html)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./profile/|href="|g; s|href="\.\./auth/|href="|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./posts/list\.html"|href="posts.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="list\.html"|href="posts.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="create\.html"|href="make-post.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="detail\.html"|href="post-detail.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="edit\.html"|href="edit-post.html"|g' *.html)
+else
+    (cd "$OUTPUT_DIR" && sed -i 's|href="\.\./profile/|href="|g; s|href="\.\./auth/|href="|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|href="\.\./posts/list\.html"|href="posts.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|href="list\.html"|href="posts.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|href="create\.html"|href="make-post.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|href="detail\.html"|href="post-detail.html"|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|href="edit\.html"|href="edit-post.html"|g' *.html)
+fi
 
 if [ "$MODE" = "prod" ]; then
     echo "프로덕션용 CSS 번들 경로로 변경 중..."
-    (cd "$OUTPUT_DIR" && sed -i '' 's|css/common\.css|css/style.min.css|g' *.html)
-    (cd "$OUTPUT_DIR" && sed -i '' '/css\/pages\//d' *.html)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        (cd "$OUTPUT_DIR" && sed -i '' 's|css/common\.css|css/style.min.css|g' *.html)
+        (cd "$OUTPUT_DIR" && sed -i '' '/css\/pages\//d' *.html)
+    else
+        (cd "$OUTPUT_DIR" && sed -i 's|css/common\.css|css/style.min.css|g' *.html)
+        (cd "$OUTPUT_DIR" && sed -i '/css\/pages\//d' *.html)
+    fi
     echo "정적 자산 복사 중..."
     rm -rf "$OUTPUT_DIR"/assets
     cp -R assets "$OUTPUT_DIR"/
