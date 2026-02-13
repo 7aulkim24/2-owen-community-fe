@@ -1,66 +1,110 @@
 #!/bin/bash
 
 # 프론트엔드 EC2 배포 스크립트
-# 사용법: ./scripts/deploy.sh [BACKEND_EC2_NAME]
+# 사용법:
+#   BACKEND_HOST=10.0.1.23 ./scripts/deploy.sh
+#   ./scripts/deploy.sh community-backend
 
-set -e
+set -euo pipefail
 
 echo "===== 프론트엔드 EC2 배포 시작 ====="
 
-# 설정
-BACKEND_EC2_NAME="${1:-community-backend}"
-# 스크립트 위치 기준으로 프로젝트 디렉토리 감지
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+BACKEND_EC2_NAME="${1:-${BACKEND_EC2_NAME:-community-backend}}"
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+BACKEND_HOST="${BACKEND_HOST:-}"
+API_BASE_URL="${VITE_API_BASE_URL:-/api}"
+WEB_ROOT="${WEB_ROOT:-/var/www/community-fe}"
+NGINX_TEMPLATE_PATH="$PROJECT_DIR/deploy/nginx.community.conf"
+NGINX_TARGET_PATH="${NGINX_TARGET_PATH:-/etc/nginx/conf.d/community.conf}"
+NGINX_SERVER_NAME="${NGINX_SERVER_NAME:-_}"
+AWS_IP_FIELD="${AWS_IP_FIELD:-PrivateIpAddress}"
 
-# AWS CLI로 백엔드 EC2 IP 가져오기
-echo "백엔드 EC2 IP를 가져오는 중..."
-BACKEND_IP=$(aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=$BACKEND_EC2_NAME" \
-            "Name=instance-state-name,Values=running" \
-  --query "Reservations[0].Instances[0].PublicIpAddress" \
-  --output text)
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "ERROR: '$1' 명령어가 필요합니다."
+    exit 1
+  fi
+}
 
-if [ "$BACKEND_IP" = "None" ] || [ -z "$BACKEND_IP" ]; then
-  echo "ERROR: 백엔드 EC2 IP를 찾을 수 없습니다."
-  echo "EC2 인스턴스에 Name 태그 '$BACKEND_EC2_NAME'가 설정되어 있는지 확인하세요."
+require_command npm
+require_command sed
+require_command systemctl
+require_command nginx
+
+if [ -z "$BACKEND_HOST" ]; then
+  if command -v aws >/dev/null 2>&1; then
+    echo "BACKEND_HOST 미설정: AWS CLI로 인스턴스 '$BACKEND_EC2_NAME' 조회 중..."
+    BACKEND_HOST=$(aws ec2 describe-instances \
+      --filters "Name=tag:Name,Values=$BACKEND_EC2_NAME" "Name=instance-state-name,Values=running" \
+      --query "Reservations[0].Instances[0].$AWS_IP_FIELD" \
+      --output text 2>/dev/null || true)
+  fi
+fi
+
+if [ -z "$BACKEND_HOST" ] || [ "$BACKEND_HOST" = "None" ]; then
+  echo "ERROR: BACKEND_HOST를 확인할 수 없습니다."
+  echo "예시: BACKEND_HOST=10.0.1.23 ./scripts/deploy.sh"
   exit 1
 fi
 
-echo "백엔드 IP: $BACKEND_IP"
-BACKEND_URL="http://$BACKEND_IP:8000"
+echo "백엔드 대상: $BACKEND_HOST:$BACKEND_PORT"
+echo "프로젝트 디렉토리: $PROJECT_DIR"
 
-# .env.production 생성
-echo ".env.production 파일 생성 중..."
 cd "$PROJECT_DIR"
-sed -e "s|{{BACKEND_URL}}|$BACKEND_URL|g" \
-    .env.production.template > .env.production
 
-echo ".env.production 파일이 생성되었습니다."
+echo ".env.production 생성 중..."
+cat > .env.production <<EOF
+VITE_API_BASE_URL=$API_BASE_URL
+EOF
+echo "✓ .env.production 생성 완료"
 
-# Node.js 의존성 설치
-echo "Node.js 패키지 설치 중..."
-npm install -q
+if [ -f package-lock.json ]; then
+  echo "Node 의존성 설치(npm ci)..."
+  npm ci --silent
+else
+  echo "Node 의존성 설치(npm install)..."
+  npm install --silent
+fi
 
-# 프로덕션 빌드
-echo "프로덕션 빌드 실행 중..."
+echo "프로덕션 빌드 실행..."
 npm run build:prod
 
-# Nginx 설정 (정적 파일 서빙)
-if command -v nginx &> /dev/null; then
-  echo "Nginx로 정적 파일 배포 중..."
-  sudo cp -r dist/* /usr/share/nginx/html/
-  sudo systemctl restart nginx
-  echo "✓ Nginx 재시작 완료"
-else
-  # Nginx 없으면 Python http.server 사용
-  echo "Python http.server로 서빙 중..."
-  cd dist
-  pkill -f "python3 -m http.server" || true
-  nohup python3 -m http.server 80 > frontend.log 2>&1 &
-  echo "✓ HTTP 서버 시작 완료 (포트 80)"
+if [ ! -d dist ]; then
+  echo "ERROR: dist 디렉토리가 생성되지 않았습니다."
+  exit 1
 fi
+
+echo "Nginx 정적 파일 반영: $WEB_ROOT"
+sudo mkdir -p "$WEB_ROOT"
+sudo find "$WEB_ROOT" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+sudo cp -R dist/. "$WEB_ROOT/"
+
+if [ ! -f "$NGINX_TEMPLATE_PATH" ]; then
+  echo "ERROR: Nginx 템플릿이 없습니다: $NGINX_TEMPLATE_PATH"
+  exit 1
+fi
+
+echo "Nginx 설정 파일 배포: $NGINX_TARGET_PATH"
+tmp_nginx_conf="$(mktemp)"
+sed \
+  -e "s|__WEB_ROOT__|$WEB_ROOT|g" \
+  -e "s|__BACKEND_HOST__|$BACKEND_HOST|g" \
+  -e "s|__BACKEND_PORT__|$BACKEND_PORT|g" \
+  -e "s|__SERVER_NAME__|$NGINX_SERVER_NAME|g" \
+  "$NGINX_TEMPLATE_PATH" > "$tmp_nginx_conf"
+sudo cp "$tmp_nginx_conf" "$NGINX_TARGET_PATH"
+rm -f "$tmp_nginx_conf"
+
+echo "Nginx 설정 검증..."
+sudo nginx -t
+
+echo "Nginx 재시작..."
+sudo systemctl restart nginx
+sudo systemctl status nginx --no-pager -l | head -n 20
 
 echo ""
 echo "===== 프론트엔드 배포 완료 ====="
-echo "접속 URL: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
+echo "정적 루트: $WEB_ROOT"
+echo "API 프록시: /api -> http://$BACKEND_HOST:$BACKEND_PORT"

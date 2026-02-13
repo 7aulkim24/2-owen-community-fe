@@ -44,6 +44,11 @@ HTML, CSS, Vanilla JS만을 사용하여 구현한 커뮤니티 서비스 프론
 2. **실행**: VS Code **Live Server**로 `pages/auth/login.html` 오픈 (포트 5500 권장)
 3. **빌드**: `npm install` 후 `npm run build:prod`로 최적화 결과물 확인 가능
 
+## EC2 배포 요약 (최신)
+- API 기본 경로를 절대 URL에서 상대 경로(`/api`) 중심으로 전환했습니다.
+- 프론트 Nginx가 `/api` 요청을 백엔드(`:8000`)로 reverse proxy 하도록 구성했습니다.
+- 배포 스크립트는 `BACKEND_HOST` 직접 지정 또는 EC2 태그 조회를 지원합니다.
+- 상세 절차는 `docs/DEPLOY_QA.md`를 참고하세요.
 
 
 

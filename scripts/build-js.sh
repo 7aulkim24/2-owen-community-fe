@@ -17,7 +17,7 @@ elif [ -f ".env" ]; then
 fi
 
 # 환경변수 기본값 설정
-API_BASE_URL="${VITE_API_BASE_URL:-http://localhost:8000}"
+API_BASE_URL="${VITE_API_BASE_URL:-/api}"
 
 echo "Building JavaScript with API_BASE_URL=$API_BASE_URL..."
 
