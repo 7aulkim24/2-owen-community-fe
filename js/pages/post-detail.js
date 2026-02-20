@@ -264,6 +264,16 @@ function closeDeletePostModal() {
     if (modal) modal.classList.remove('show');
 }
 
+// 댓글 수 UI만 부분 업데이트 (성능 최적화)
+function updateCommentCountUI(change) {
+    const commentCount = document.querySelectorAll('.post-stats-container .stat-box')[2]?.querySelector('.stat-count');
+    if (!commentCount) return;
+
+    let current = parseInt(commentCount.textContent.replace(/k/i, '000'), 10) || 0;
+    let newValue = Math.max(0, current + change);
+    commentCount.textContent = formatCount(newValue);
+}
+
 // 댓글 작성/수정
 async function submitComment(postId) {
     const commentTextarea = document.getElementById('comment-textarea');
@@ -291,13 +301,13 @@ async function submitComment(postId) {
                 content: commentText
             });
             handleApiSuccess(response);
+            updateCommentCountUI(1); // 댓글 작성 시 전체 데이터를 불러오는 대신 즉시 로컬 카운트 업데이트
         }
 
         commentTextarea.value = '';
         commentSubmitBtn.disabled = true;
         commentSubmitBtn.classList.remove('active');
         await loadComments(postId);
-        await loadPost(postId, false); // 댓글 작성 후에는 조회수 증가 안함
     } catch (error) {
         handleApiError(error);
     }
@@ -330,7 +340,7 @@ async function confirmDeleteComment() {
 
         closeDeleteModal();
         await loadComments(postId);
-        await loadPost(postId, false); // 댓글 삭제 후에는 조회수 증가 안함
+        updateCommentCountUI(-1); // 댓글 삭제 시 전체 데이터를 불러오는 대신 즉시 로컬 카운트 업데이트
     } catch (error) {
         handleApiError(error);
     }
