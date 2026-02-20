@@ -1,4 +1,5 @@
-import { get, post, patch, del, handleApiError, handleApiSuccess, showToast, getFullImageUrl } from '../api.js';
+import { get, post, patch, del, handleApiError, handleApiSuccess, showToast, showModal, getFullImageUrl } from '../api.js';
+import { formatCount, formatDate } from '../utils/formatting.js';
 
 // 상태 관리
 let editingCommentId = null;
@@ -14,51 +15,7 @@ try {
     console.error('Failed to parse user from localStorage', e);
 }
 
-/**
- * 커스텀 알림 모달 표시
- * @param {string} title - 모달 제목
- * @param {string} content - 모달 내용
- * @param {function} callback - 확인 버튼 클릭 시 콜백
- */
-function showAlert(title, content, callback = null) {
-    const modal = document.getElementById('alert-modal');
-    const titleEl = document.getElementById('alert-modal-title');
-    const contentEl = document.getElementById('alert-modal-content');
-    const confirmBtn = modal.querySelector('.btn-confirm');
 
-    if (!modal || !titleEl || !contentEl || !confirmBtn) return;
-
-    titleEl.textContent = title;
-    contentEl.textContent = content;
-    modal.classList.add('show');
-
-    confirmBtn.onclick = () => {
-        modal.classList.remove('show');
-        if (callback) callback();
-    };
-}
-
-// 숫자 포맷팅 (1,000 -> 1k 등)
-function formatCount(count) {
-    if (count >= 1000) {
-        return Math.floor(count / 1000) + 'k';
-    }
-    return count;
-}
-
-// 날짜 포맷팅
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
-}
 
 // URL 파라미터에서 게시글 ID 추출
 function getPostIdFromUrl() {
@@ -223,8 +180,12 @@ async function loadPost(postId, incHits = true) {
         const response = await get(`/v1/posts/${postId}?incHits=${incHits}`);
         const post = response?.data;
         if (!post) {
-            showAlert('오류', '게시글 정보를 불러오지 못했습니다.', () => {
-                window.location.replace('/posts.html');
+            showModal({
+                title: '오류',
+                message: '게시글 정보를 불러오지 못했습니다.',
+                onConfirm: () => {
+                    window.location.replace('/posts.html');
+                }
             });
             return;
         }
@@ -310,7 +271,10 @@ async function submitComment(postId) {
     const commentText = commentTextarea.value.trim();
 
     if (!commentText) {
-        showAlert('알림', '댓글 내용을 입력해주세요.');
+            showModal({
+                title: '알림',
+                message: '댓글 내용을 입력해주세요.'
+            });
         return;
     }
 
@@ -402,8 +366,12 @@ window.editComment = function(commentId) {
 document.addEventListener('DOMContentLoaded', async () => {
     const postId = getPostIdFromUrl();
     if (!postId) {
-        showAlert('오류', '게시글 ID를 찾을 수 없습니다.', () => {
-            window.location.replace('/posts.html');
+        showModal({
+            title: '오류',
+            message: '게시글 ID를 찾을 수 없습니다.',
+            onConfirm: () => {
+                window.location.replace('/posts.html');
+            }
         });
         return;
     }

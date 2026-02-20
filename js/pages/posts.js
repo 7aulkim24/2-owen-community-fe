@@ -1,4 +1,5 @@
 import { get, post, handleApiError, handleApiSuccess, getFullImageUrl } from '../api.js';
+import { formatCount, formatDate } from '../utils/formatting.js';
 
 // DOM 요소
 const postList = document.getElementById('post-list');
@@ -18,14 +19,6 @@ try {
     console.error('Failed to parse user from localStorage', e);
 }
 
-// 숫자 포맷팅 (1,000 -> 1k 등)
-function formatCount(count) {
-    if (count >= 1000) {
-        return Math.floor(count / 1000) + 'k';
-    }
-    return count;
-}
-
 // 게시글 HTML 생성
 function createPostHTML(post) {
     // 제목 26자 제한
@@ -34,16 +27,7 @@ function createPostHTML(post) {
         : post.title;
 
     // 날짜 포맷팅 (YYYY-MM-DD HH:mm:ss)
-    const date = new Date(post.createdAt);
-    const dateString = date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
+    const dateString = formatDate(post.createdAt);
 
     const profileImg = getFullImageUrl(post.author.profileImageUrl) || './assets/default-profile.png';
 
