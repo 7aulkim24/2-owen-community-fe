@@ -69,7 +69,7 @@ main {
 }
 
 /* 카드 내 구분선 */
-.post-divider {
+.post-list-divider {
     height: 1px;
     background-color: var(--border-color);
     margin-bottom: 16px;

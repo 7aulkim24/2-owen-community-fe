@@ -42,7 +42,7 @@ function createPostHTML(post) {
                 </div>
                 <div class="post-date">${dateString}</div>
             </div>
-            <div class="post-divider"></div>
+            <div class="post-list-divider"></div>
             <div class="post-author">
                 <div class="author-img">
                     <img src="${profileImg}" alt="" loading="lazy">

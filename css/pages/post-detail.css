@@ -101,14 +101,10 @@
 }
 
 /* 구분선 */
-.post-divider {
+.post-detail-divider {
   height: 1px;
   background-color: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 110%;
-  transform: translateX(-5%);
+  width: 100%;
   /* 작성자 영역과 이미지 영역 사이 구분선 여백 */
   margin: 0px 0 25px 0;
 }

@@ -166,11 +166,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: formData
                     });
 
+                    const uploadResult = await uploadResponse.json().catch(() => ({}));
+
                     if (!uploadResponse.ok) {
-                        throw new Error('이미지 업로드 실패');
+                        const error = new Error(
+                            uploadResult.message ||
+                            (uploadResponse.status === 413
+                                ? '업로드 용량이 제한을 초과했습니다.'
+                                : '이미지 업로드 실패')
+                        );
+                        error.code = uploadResult.code || (uploadResponse.status === 413 ? 'PAYLOAD_TOO_LARGE' : undefined);
+                        throw error;
                     }
 
-                    const uploadResult = await uploadResponse.json();
                     fileUrls = uploadResult?.data?.postFileUrls || [];
                 } catch (uploadError) {
                     console.error('이미지 업로드 실패:', uploadError);

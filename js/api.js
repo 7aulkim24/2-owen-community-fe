@@ -269,9 +269,12 @@ export const uploadFile = async (url, file, fieldName = 'file') => {
         const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-            const errorMessage = result.message || '파일 업로드에 실패했습니다.';
+            const statusFallbackCode = response.status === 413 ? 'PAYLOAD_TOO_LARGE' : undefined;
+            const errorMessage = result.message || (response.status === 413
+                ? '업로드 용량이 제한을 초과했습니다.'
+                : '파일 업로드에 실패했습니다.');
             const error = new Error(errorMessage);
-            error.code = result.code;
+            error.code = result.code || statusFallbackCode;
             error.requestId = requestId; // 에러 객체에 ID 주입
             throw error;
         }
