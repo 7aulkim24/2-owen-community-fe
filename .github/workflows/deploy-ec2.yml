@@ -1,0 +1,159 @@
+name: Docker EC2 Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Optional tag (default: short git SHA)"
+        required: false
+        type: string
+
+concurrency:
+  group: docker-ec2-deploy-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - name: Resolve repository layout
+        id: repos
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REPOSITORY}" = "7aulkim24/2-owen-community-be" ]; then
+            echo "self_path=2-owen-community-be" >> "$GITHUB_OUTPUT"
+            echo "other_repo=7aulkim24/2-owen-community-fe" >> "$GITHUB_OUTPUT"
+            echo "other_path=2-owen-community-fe" >> "$GITHUB_OUTPUT"
+          elif [ "${GITHUB_REPOSITORY}" = "7aulkim24/2-owen-community-fe" ]; then
+            echo "self_path=2-owen-community-fe" >> "$GITHUB_OUTPUT"
+            echo "other_repo=7aulkim24/2-owen-community-be" >> "$GITHUB_OUTPUT"
+            echo "other_path=2-owen-community-be" >> "$GITHUB_OUTPUT"
+          else
+            echo "ERROR: unsupported repository ${GITHUB_REPOSITORY}" >&2
+            exit 1
+          fi
+
+      - name: Checkout self repository
+        uses: actions/checkout@v4
+        with:
+          path: ${{ steps.repos.outputs.self_path }}
+
+      - name: Checkout sibling repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.repos.outputs.other_repo }}
+          path: ${{ steps.repos.outputs.other_path }}
+          fetch-depth: 1
+
+      - name: Prepare deploy assets
+        run: |
+          set -euo pipefail
+          rm -rf ./docker
+          cp -R "${{ steps.repos.outputs.self_path }}/docker" ./docker
+          chmod +x ./docker/scripts/build-and-push.sh
+
+      - name: Resolve image tag
+        id: meta
+        run: |
+          set -euo pipefail
+          INPUT_TAG="${{ github.event.inputs.image_tag || '' }}"
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG="${GITHUB_SHA::12}"
+          fi
+          echo "image_tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_TAG=$TAG"
+
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push images (FE/BE/DB)
+        env:
+          DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_NAMESPACE }}
+          IMAGE_TAG: ${{ steps.meta.outputs.image_tag }}
+          PUSH_LATEST: "false"
+        run: |
+          set -euo pipefail
+          ./docker/scripts/build-and-push.sh
+
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve repository layout
+        id: repos
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REPOSITORY}" = "7aulkim24/2-owen-community-be" ]; then
+            echo "self_path=2-owen-community-be" >> "$GITHUB_OUTPUT"
+          elif [ "${GITHUB_REPOSITORY}" = "7aulkim24/2-owen-community-fe" ]; then
+            echo "self_path=2-owen-community-fe" >> "$GITHUB_OUTPUT"
+          else
+            echo "ERROR: unsupported repository ${GITHUB_REPOSITORY}" >&2
+            exit 1
+          fi
+
+      - name: Checkout self repository
+        uses: actions/checkout@v4
+        with:
+          path: ${{ steps.repos.outputs.self_path }}
+
+      - name: Prepare deploy assets
+        run: |
+          set -euo pipefail
+          rm -rf ./docker
+          cp -R "${{ steps.repos.outputs.self_path }}/docker" ./docker
+
+      - name: Upload docker deployment files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: "docker/*"
+          target: ${{ secrets.EC2_DEPLOY_DIR }}
+          strip_components: 1
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_NAMESPACE }}
+          EC2_DEPLOY_DIR: ${{ secrets.EC2_DEPLOY_DIR }}
+          EC2_ENV_FILE_B64: ${{ secrets.EC2_ENV_FILE_B64 }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script_stop: true
+          envs: IMAGE_TAG,DOCKERHUB_NAMESPACE,EC2_DEPLOY_DIR,EC2_ENV_FILE_B64
+          script: |
+            set -euo pipefail
+            DEPLOY_DIR="${EC2_DEPLOY_DIR}"
+
+            mkdir -p "$DEPLOY_DIR"
+            cd "$DEPLOY_DIR"
+
+            if [ -n "${EC2_ENV_FILE_B64:-}" ]; then
+              printf '%s' "$EC2_ENV_FILE_B64" | base64 -d > .env
+            fi
+
+            if [ ! -f .env ]; then
+              echo "ERROR: .env not found at $DEPLOY_DIR/.env"
+              echo "Set EC2_ENV_FILE_B64 secret or create .env manually on EC2."
+              exit 1
+            fi
+
+            chmod +x ./scripts/deploy-on-ec2.sh ./scripts/refresh-public-ip-and-redeploy.sh
+            IMAGE_TAG="$IMAGE_TAG" DOCKERHUB_NAMESPACE="$DOCKERHUB_NAMESPACE" ./scripts/deploy-on-ec2.sh "$IMAGE_TAG"

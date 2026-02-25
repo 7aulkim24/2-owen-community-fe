@@ -1,0 +1,17 @@
+# SAMPLE UNIT FILE
+# This file is an example only. Prefer using:
+#   sudo ./scripts/install-refresh-service.sh <deploy-docker-dir>
+# and ensure ExecStart points to your real deploy path.
+[Unit]
+Description=Refresh EC2 public IP in ALLOWED_ORIGINS and redeploy docker compose
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/deploy/docker/scripts/refresh-public-ip-and-redeploy.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
