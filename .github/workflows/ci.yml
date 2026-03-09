@@ -1,0 +1,37 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout frontend repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: |
+          set -euo pipefail
+          npm ci
+
+      - name: Build frontend production bundle
+        run: |
+          set -euo pipefail
+          npm run build:prod
+
+      - name: Verify build output
+        run: |
+          set -euo pipefail
+          test -f dist/posts.html
+          test -f dist/js/api.js
+          test -f dist/css/style.min.css
