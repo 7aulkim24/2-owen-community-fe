@@ -9,6 +9,7 @@ let isLoading = false;
 let hasNext = true;
 let currentUser = null;
 let infiniteScrollObserver = null;
+let currentPostType = 'all';
 
 try {
     const userStr = localStorage.getItem('user');
@@ -77,10 +78,14 @@ async function loadPosts(append = false) {
     isLoading = true;
 
     try {
-        const params = new URLSearchParams({
+        const queryOpts = {
             offset: currentOffset,
             limit: LIMIT
-        });
+        };
+        if (currentPostType !== 'all') {
+            queryOpts.post_type = currentPostType;
+        }
+        const params = new URLSearchParams(queryOpts);
         const response = await get(`/v1/posts?${params}`);
         const items = response?.data?.items || [];
         const pagination = response?.data?.pagination || null;
@@ -170,6 +175,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 초기 데이터 로드
     loadPosts();
+
+    // 필터 탭 이벤트 처리
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            // UI 업데이트
+            filterTabs.forEach(t => t.classList.remove('active'));
+            const targetBtn = e.target.closest('.filter-tab');
+            targetBtn.classList.add('active');
+            
+            // 데이터 업데이트
+            currentPostType = targetBtn.dataset.type;
+            resetAndReload();
+        });
+    });
     
     // 게시글 작성 버튼 이벤트 및 권한 제어
     const btnCreate = document.getElementById('btn-create-post');
