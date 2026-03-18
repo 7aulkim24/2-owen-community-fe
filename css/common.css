@@ -1,12 +1,37 @@
 /* 공통 변수 정의 */
 :root {
-    --primary-color: #ACA0EB;
-    --primary-hover-color: #7F6AEE;
-    --bg-color: #f4f5f7;
-    --text-color: #000000;
-    --secondary-text: #555555;
-    --white: #ffffff;
-    --border-color: #E0E0E0;
+    /* Semantic color tokens */
+    --color-primary: #ACA0EB;
+    --color-primary-hover: #7F6AEE;
+    --color-surface: #f4f5f7;
+    --color-surface-muted: #ffffff;
+    --color-text: #000000;
+    --color-text-muted: #555555;
+    --color-border: #E0E0E0;
+
+    /* Backward compatibility aliases */
+    --primary-color: var(--color-primary);
+    --primary-hover-color: var(--color-primary-hover);
+    --bg-color: var(--color-surface);
+    --secondary-text: var(--color-text-muted);
+    --white: var(--color-surface-muted);
+    --border-color: var(--color-border);
+
+    /* Badge accent colors (Phase 1+ 콘텐츠 타입별) */
+    --color-badge-auto-log: #7F6AEE;
+    --color-badge-weekly-digest: #4CAF82;
+    --color-badge-manual: #9E9E9E;
+
+    /* Typography scale */
+    --font-size-heading-lg: 1.5rem;
+    --font-size-heading-md: 1.25rem;
+    --font-size-body: 1rem;
+    --font-size-caption: 0.875rem;
+    --font-size-badge: 0.75rem;
+    --font-weight-bold: 700;
+    --font-weight-medium: 500;
+    --font-weight-regular: 400;
+
     --max-width: 600px; /* 게시글 목록의 폭을 좁게 설정 */
 }
 
@@ -137,14 +162,14 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: not-allowed;
-    background-color: #ACA0EB;
+    background-color: var(--color-primary);
     color: var(--white);
     margin-top: 10px;
     transition: background-color 0.3s;
 }
 
 .btn-auth.active {
-    background-color: #7F6AEE;
+    background-color: var(--color-primary-hover);
     cursor: pointer;
 }
 

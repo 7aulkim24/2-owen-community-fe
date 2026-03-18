@@ -73,6 +73,44 @@ main {
     transform: translateY(-2px);
 }
 
+/* 카드 타입별 변형 (Phase 1+ auto_log, weekly_digest) */
+.post-card--auto-log {
+    border-left: 3px solid var(--color-badge-auto-log);
+}
+
+.post-card--weekly-digest {
+    border-left: 3px solid var(--color-badge-weekly-digest);
+}
+
+/* Badge 공통 스타일 */
+.post-card__badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: var(--font-size-badge);
+    font-weight: var(--font-weight-medium);
+    color: var(--white);
+    margin-bottom: 8px;
+}
+
+.post-card__badge--auto-log {
+    background-color: var(--color-badge-auto-log);
+}
+
+.post-card__badge--weekly-digest {
+    background-color: var(--color-badge-weekly-digest);
+}
+
+/* source summary 근거 섹션 */
+.post-card__source-summary {
+    font-size: var(--font-size-caption);
+    color: var(--color-text-muted);
+    padding: 10px 12px;
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
 /* 게시글 제목 (26자 제한 처리는 JS에서 수행) */
 .post-title {
     font-size: 20px;

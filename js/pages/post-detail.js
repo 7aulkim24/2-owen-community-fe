@@ -1,5 +1,6 @@
 import { get, post, patch, del, handleApiError, handleApiSuccess, showToast, showModal, getFullImageUrl } from '../api.js';
 import { formatCount, formatDate } from '../utils/formatting.js';
+import { buildBadge, buildSourceSummary } from '../utils/card-builder.js';
 
 // 상태 관리
 let editingCommentId = null;
@@ -27,6 +28,37 @@ function getPostIdFromUrl() {
 function renderPost(post) {
     const postDetail = document.querySelector('.post-detail');
     if (!postDetail) return;
+
+    const postType = post.post_type ?? post.postType ?? 'manual';
+    const postHeader = postDetail.querySelector('.post-header');
+
+    // 배지 (post_type이 manual이 아닐 때만)
+    if (postHeader) {
+        const existingBadge = postHeader.querySelector('.post-detail__badge-wrap');
+        if (existingBadge) existingBadge.remove();
+        const badgeHtml = buildBadge(postType);
+        if (badgeHtml) {
+            const wrap = document.createElement('div');
+            wrap.className = 'post-detail__badge-wrap';
+            wrap.innerHTML = badgeHtml;
+            postHeader.insertAdjacentElement('afterbegin', wrap);
+        }
+    }
+
+    // source_summary 근거 영역
+    const sourceSummary = post.source_summary ?? post.sourceSummary;
+    const postContent = postDetail.querySelector('.post-content');
+    let sourceSummaryEl = postDetail.querySelector('.post-detail__source-summary');
+    if (sourceSummaryEl) sourceSummaryEl.remove();
+    if (sourceSummary && postContent) {
+        const summaryHtml = buildSourceSummary(sourceSummary);
+        if (summaryHtml) {
+            const wrap = document.createElement('div');
+            wrap.className = 'post-detail__source-summary';
+            wrap.innerHTML = summaryHtml;
+            postContent.insertAdjacentElement('beforebegin', wrap);
+        }
+    }
 
     // 제목
     const titleElement = postDetail.querySelector('.post-detail-title');

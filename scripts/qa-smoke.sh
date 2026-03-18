@@ -20,7 +20,7 @@ echo "QA Smoke 시작: $FE_URL"
 posts_status=$(curl -sS -o /tmp/community_posts.html -w "%{http_code}" "$FE_URL/posts.html")
 assert_status 200 "$posts_status" "GET /posts.html"
 
-if ! grep -q "AWS AI School 2기" /tmp/community_posts.html; then
+if ! grep -q "Prooflog" /tmp/community_posts.html; then
   echo "[FAIL] posts.html 내용 검증 실패"
   exit 1
 fi

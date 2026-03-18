@@ -1,5 +1,5 @@
 import { get, post, handleApiError, handleApiSuccess, getFullImageUrl } from '../api.js';
-import { formatCount, formatDate } from '../utils/formatting.js';
+import { buildPostCard } from '../utils/card-builder.js';
 
 // DOM 요소
 const postList = document.getElementById('post-list');
@@ -20,40 +20,6 @@ try {
     console.error('Failed to parse user from localStorage', e);
 }
 
-// 게시글 HTML 생성
-function createPostHTML(post) {
-    // 제목 26자 제한
-    const displayTitle = post.title.length > 26 
-        ? post.title.substring(0, 26) + '...'
-        : post.title;
-
-    // 날짜 포맷팅 (YYYY-MM-DD HH:mm:ss)
-    const dateString = formatDate(post.createdAt);
-
-    const profileImg = getFullImageUrl(post.author.profileImageUrl) || './assets/default-profile.png';
-
-    return `
-        <article class="post-card" onclick="location.href='/post-detail.html?id=${post.postId}'">
-            <h3 class="post-title">${displayTitle}</h3>
-            <div class="post-info">
-                <div class="post-stats">
-                    <span>좋아요 ${formatCount(post.likeCount || 0)}</span>
-                    <span>댓글 ${formatCount(post.commentCount || 0)}</span>
-                    <span>조회수 ${formatCount(post.hits || 0)}</span>
-                </div>
-                <div class="post-date">${dateString}</div>
-            </div>
-            <div class="post-list-divider"></div>
-            <div class="post-author">
-                <div class="author-img">
-                    <img src="${profileImg}" alt="" loading="lazy">
-                </div>
-                <span class="author-name">${post.author.nickname}</span>
-            </div>
-        </article>
-    `;
-}
-
 // 게시글 렌더링
 function renderPosts(posts, append = false) {
     if (!posts || posts.length === 0) {
@@ -63,7 +29,7 @@ function renderPosts(posts, append = false) {
         return;
     }
 
-    const html = posts.map(post => createPostHTML(post)).join('');
+    const html = posts.map(post => buildPostCard(post, getFullImageUrl)).join('');
     if (append) {
         postList.insertAdjacentHTML('beforeend', html);
     } else {
