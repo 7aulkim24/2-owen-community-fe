@@ -54,21 +54,25 @@ cp pages/posts/edit.html "$OUTPUT_DIR/edit-post.html"
 cp pages/profile/edit-profile.html "$OUTPUT_DIR/edit-profile.html"
 cp pages/profile/edit-password.html "$OUTPUT_DIR/edit-password.html"
 
+# integration 그룹
+cp pages/integration/manage.html "$OUTPUT_DIR/integration.html"
+
 # 경로 수정: 개발용 상대경로를 프로덕션용 절대경로로 변경
 echo "CSS 및 JS 경로 수정 중..."
 # macOS와 Linux 모두 호환되도록 수정
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
-    (cd "$OUTPUT_DIR" && sed -i '' 's|../../css/|css/|g; s|../../js/|js/|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|../../css/|css/|g; s|../../js/|js/|g; s|../../assets/|assets/|g' *.html)
 else
     # Linux
-    (cd "$OUTPUT_DIR" && sed -i 's|../../css/|css/|g; s|../../js/|js/|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|../../css/|css/|g; s|../../js/|js/|g; s|../../assets/|assets/|g' *.html)
 fi
 
 echo "내부 링크 경로 수정 중..."
 # 프로필 및 인증 페이지 링크 수정
 if [[ "$OSTYPE" == "darwin"* ]]; then
     (cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./profile/|href="|g; s|href="\.\./auth/|href="|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./integration/manage\.html"|href="integration.html"|g; s|href="manage\.html"|href="integration.html"|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i '' 's|href="\.\./posts/list\.html"|href="posts.html"|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i '' 's|href="list\.html"|href="posts.html"|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i '' 's|href="create\.html"|href="make-post.html"|g' *.html)
@@ -76,6 +80,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     (cd "$OUTPUT_DIR" && sed -i '' 's|href="edit\.html"|href="edit-post.html"|g' *.html)
 else
     (cd "$OUTPUT_DIR" && sed -i 's|href="\.\./profile/|href="|g; s|href="\.\./auth/|href="|g' *.html)
+    (cd "$OUTPUT_DIR" && sed -i 's|href="\.\./integration/manage\.html"|href="integration.html"|g; s|href="manage\.html"|href="integration.html"|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i 's|href="\.\./posts/list\.html"|href="posts.html"|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i 's|href="list\.html"|href="posts.html"|g' *.html)
     (cd "$OUTPUT_DIR" && sed -i 's|href="create\.html"|href="make-post.html"|g' *.html)

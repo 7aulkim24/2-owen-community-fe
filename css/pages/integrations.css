@@ -1,0 +1,142 @@
+/* 연동 관리 페이지 */
+.integrations-page {
+    min-height: 100vh;
+}
+
+.integrations-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+.integrations-section h2 {
+    font-size: var(--font-size-heading-lg);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 12px;
+}
+
+.integrations-intro {
+    font-size: var(--font-size-body);
+    color: var(--color-text-muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+
+.integration-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 연동 카드 기본 */
+.integration-card {
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.integration-card__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.integration-card__icon {
+    font-size: 1.5rem;
+}
+
+.integration-card__name {
+    font-size: var(--font-size-heading-md);
+    font-weight: var(--font-weight-bold);
+}
+
+.integration-card__body {
+    font-size: var(--font-size-body);
+    color: var(--color-text-muted);
+}
+
+.integration-card__username {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+}
+
+.integration-card__date {
+    font-size: var(--font-size-caption);
+}
+
+.integration-card__description {
+    margin: 0;
+}
+
+.integration-card__actions {
+    margin-top: 4px;
+}
+
+/* 연결됨 상태 */
+.integration-card--connected {
+    border-color: var(--color-badge-weekly-digest);
+    background: rgba(76, 175, 130, 0.06);
+}
+
+.integration-card--connected .integration-card__name {
+    color: var(--color-badge-weekly-digest);
+}
+
+/* 미연결 상태 (기본) */
+.integration-card--disconnected {
+    border-color: var(--color-border);
+}
+
+/* Notion 예고 카드 */
+.integration-card--coming-soon {
+    opacity: 0.7;
+    background: var(--color-surface);
+}
+
+.integration-card--coming-soon .integration-card__icon,
+.integration-card--coming-soon .integration-card__name,
+.integration-card--coming-soon .integration-card__description {
+    color: var(--color-text-muted);
+}
+
+/* 버튼 */
+.btn-integration {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-connect {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-connect:hover {
+    background: var(--color-primary-hover);
+}
+
+.btn-disconnect {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+}
+
+.btn-disconnect:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-disabled {
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+}
