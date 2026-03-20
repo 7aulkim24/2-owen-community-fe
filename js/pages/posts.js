@@ -10,6 +10,7 @@ let hasNext = true;
 let currentUser = null;
 let infiniteScrollObserver = null;
 let currentPostType = 'all';
+let loadId = 0;
 
 try {
     const userStr = localStorage.getItem('user');
@@ -42,6 +43,7 @@ async function loadPosts(append = false) {
     if (isLoading || (!hasNext && append)) return;
     
     isLoading = true;
+    const thisLoadId = ++loadId;
 
     try {
         const queryOpts = {
@@ -53,6 +55,9 @@ async function loadPosts(append = false) {
         }
         const params = new URLSearchParams(queryOpts);
         const response = await get(`/v1/posts?${params}`);
+
+        if (thisLoadId !== loadId) return;
+
         const items = response?.data?.items || [];
         const pagination = response?.data?.pagination || null;
 
@@ -65,9 +70,9 @@ async function loadPosts(append = false) {
             infiniteScrollObserver.disconnect();
         }
     } catch (error) {
-        handleApiError(error);
+        if (thisLoadId === loadId) handleApiError(error);
     } finally {
-        isLoading = false;
+        if (thisLoadId === loadId) isLoading = false;
     }
 }
 
@@ -81,6 +86,7 @@ function handleScrollFallback() {
 
 // 데이터 초기화 및 재로딩 함수
 function resetAndReload() {
+    loadId++;
     currentOffset = 0;
     hasNext = true;
     postList.innerHTML = '';
