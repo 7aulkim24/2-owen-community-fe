@@ -9,7 +9,7 @@
     "build:html": "./scripts/build-html.sh",
     "build:html:prod": "./scripts/build-html.sh prod",
     "build:prod": "npm run build:html:prod && npm run build:css && npm run build:js",
-    "build": "npm run build:html && npm run build:css:dev",
+    "build": "npm run build:html && npm run build:css:dev && npm run build:js",
     "deploy": "./scripts/deploy.sh"
   },
   "keywords": [
@@ -20,6 +20,11 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "esbuild": "^0.27.2"
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "autoprefixer": "^10.4.27",
+    "esbuild": "^0.27.2",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19"
   }
 }

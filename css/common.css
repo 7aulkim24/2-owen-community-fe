@@ -1,28 +1,32 @@
-/* 공통 변수 정의 */
+/* Prooflog — 다크 테마 공통 변수 (Stitch / Material 3 토큰 정렬) */
 :root {
-    /* Semantic color tokens */
-    --color-primary: #ACA0EB;
-    --color-primary-hover: #7F6AEE;
-    --color-surface: #f4f5f7;
-    --color-surface-muted: #ffffff;
-    --color-text: #000000;
-    --color-text-muted: #555555;
-    --color-border: #E0E0E0;
+    --color-bg: #10141a;
+    --color-surface: #181c22;
+    --color-surface-high: #262a31;
+    --color-surface-highest: #31353c;
+    --color-primary: #a3c9ff;
+    --color-primary-container: #57a5ff;
+    --color-on-primary: #00315c;
+    --color-secondary: #7bdb80;
+    --color-on-surface: #dfe2eb;
+    --color-on-surface-variant: #c0c7d4;
+    --color-outline: #8b919d;
+    --color-outline-variant: #414752;
+    --color-error: #ffb4ab;
 
-    /* Backward compatibility aliases */
+    /* Backward compatibility */
     --primary-color: var(--color-primary);
-    --primary-hover-color: var(--color-primary-hover);
-    --bg-color: var(--color-surface);
-    --secondary-text: var(--color-text-muted);
-    --white: var(--color-surface-muted);
-    --border-color: var(--color-border);
+    --primary-hover-color: var(--color-primary-container);
+    --bg-color: var(--color-bg);
+    --text-color: var(--color-on-surface);
+    --secondary-text: var(--color-on-surface-variant);
+    --white: var(--color-on-surface);
+    --border-color: var(--color-outline-variant);
 
-    /* Badge accent colors (Phase 1+ 콘텐츠 타입별) */
-    --color-badge-auto-log: #7F6AEE;
-    --color-badge-weekly-digest: #4CAF82;
-    --color-badge-manual: #9E9E9E;
+    --color-badge-auto-log: var(--color-primary-container);
+    --color-badge-weekly-digest: var(--color-secondary);
+    --color-badge-manual: var(--color-on-surface-variant);
 
-    /* Typography scale */
     --font-size-heading-lg: 1.5rem;
     --font-size-heading-md: 1.25rem;
     --font-size-body: 1rem;
@@ -32,10 +36,27 @@
     --font-weight-medium: 500;
     --font-weight-regular: 400;
 
-    --max-width: 600px; /* 게시글 목록의 폭을 좁게 설정 */
+    --max-width: 45rem; /* 피드·상세·헤더·작성 폼 공통 컬럼 */
+
+    /* 8px 그리드 간격 — 피드·상세·설정 공통 리듬 */
+    --space-1: 0.5rem;   /* 8px */
+    --space-2: 1rem;     /* 16px */
+    --space-3: 1.5rem;   /* 24px */
+    --space-4: 2rem;     /* 32px */
+    --space-5: 2.5rem;   /* 40px */
+    --space-6: 3rem;     /* 48px */
+
+    /* 타이포 스케일 — 카드(피드) ↔ 상세 ↔ 설정 페이지 정렬 */
+    --text-hero: clamp(1.75rem, 4vw, 3rem);
+    --text-page-title: clamp(1.5rem, 3.5vw, 1.75rem);
+    --text-section-title: 1.25rem;
+    --text-card-title: 1.25rem;
+    --text-body: 1rem;
+    --text-caption: 0.875rem;
+    --text-meta: 0.75rem;
+    --text-badge: 0.625rem;
 }
 
-/* 기본 초기화 */
 * {
     margin: 0;
     padding: 0;
@@ -43,22 +64,67 @@
 }
 
 body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    font-family: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
 }
 
-/* 헤더 영역 */
+/* 레거시 헤더 (Tailwind 미사용 페이지용 최소 스타일) */
 #header {
-    background-color: var(--white);
-    border-bottom: 1px solid var(--border-color);
-    height: 80px; /* 헤더 높이 통일 */
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-outline-variant);
+    min-height: 64px;
     display: flex;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 1000;
+}
+
+/* 데스크톱: Feed / Records / 연동 — 뷰포트 기준 헤더 중앙 (좌·우 영역 동일 폭) */
+@media (min-width: 768px) {
+    #header .app-header-inner {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        column-gap: var(--space-2);
+    }
+
+    #header .app-header-inner > *:first-child {
+        justify-self: start;
+        min-width: 0;
+    }
+
+    #header .app-header-inner > nav {
+        justify-self: center;
+    }
+
+    #header .app-header-inner > *:last-child {
+        justify-self: end;
+    }
+}
+
+/* 앱 셸 헤더: 피드·상세와 동일 컬럼(--max-width), 프로필 레거시 absolute 해제, 링크 밑줄 제거 */
+#header .app-header-inner {
+    max-width: min(var(--max-width), 100%);
+}
+
+#header .app-header-inner .profile-icon {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+}
+
+#header .app-header-inner a {
+    text-decoration: none;
+}
+
+/* 모바일 하단 탭바: <a> 기본 밑줄 제거 */
+nav[aria-label="주요 메뉴"] > a {
+    text-decoration: none;
 }
 
 .header-container {
@@ -73,87 +139,105 @@ body {
 }
 
 .header-title {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: -0.02em;
 }
 
 .profile-icon {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
     cursor: pointer;
+    position: absolute;
+    right: 0;
 }
 
 .profile-icon img {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     display: block;
     object-fit: cover;
-    background-color: #D9D9D9;
+    background-color: var(--color-surface-highest);
     border-radius: 50%;
+    border: 1px solid rgba(65, 71, 82, 0.35);
 }
 
-/* 인증 관련 페이지 (로그인/회원가입 등) */
 .header-simple {
     justify-content: center;
 }
 
 .header-simple h1 {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
 }
 
 .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 150px);
+    min-height: calc(100vh - 120px);
+    padding: 24px 16px;
 }
 
 .auth-box {
     width: 100%;
     max-width: 400px;
-    padding: 40px;
+    padding: 32px 24px;
     text-align: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 12px;
 }
 
 .auth-box h2 {
-    margin-bottom: 30px;
-    font-size: 24px;
+    margin-bottom: 24px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
 }
 
-/* 입력 필드 그룹 */
 .input-group {
     text-align: left;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 .input-group label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
 }
 
-.input-group input {
+.input-group input,
+.input-group textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-outline-variant);
     border-radius: 8px;
     box-sizing: border-box;
-    font-size: 14px;
+    font-size: 0.875rem;
+    background: var(--color-surface-high);
+    color: var(--color-on-surface);
 }
 
-/* 도움말 및 에러 메시지 */
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+    color: var(--color-on-surface-variant);
+    opacity: 0.7;
+}
+
 .helper-text {
-    color: #FF0000 !important;
+    color: var(--color-error) !important;
     font-size: 12px;
     margin-top: 4px;
     min-height: 16px;
     display: block !important;
 }
 
-/* 인증 버튼 */
 .btn-auth {
     width: 100%;
     padding: 14px;
@@ -162,15 +246,20 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: not-allowed;
-    background-color: var(--color-primary);
-    color: var(--white);
+    background-color: var(--color-outline-variant);
+    color: var(--color-on-surface-variant);
     margin-top: 10px;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .btn-auth.active {
-    background-color: var(--color-primary-hover);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: var(--color-on-primary);
     cursor: pointer;
+}
+
+.btn-auth.active:hover {
+    filter: brightness(1.08);
 }
 
 .auth-footer {
@@ -178,36 +267,39 @@ body {
 }
 
 .auth-footer a {
-    color: var(--text-color);
+    color: var(--color-primary);
     text-decoration: none;
     font-size: 14px;
 }
 
-/* 게시글 작성 버튼 */
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
 .btn-create {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: var(--color-on-primary);
     border: none;
     padding: 10px 24px;
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: filter 0.2s, transform 0.15s;
 }
 
 .btn-create:hover {
-    background-color: var(--primary-hover-color);
+    filter: brightness(1.08);
 }
 
-/* 모달 오버레이 */
+/* 모달 — 다크 */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.65);
     display: none;
     justify-content: center;
     align-items: center;
@@ -218,26 +310,28 @@ body {
     display: flex;
 }
 
-/* 모달 본체 */
 .modal {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
+    background: var(--color-surface-high);
+    padding: 32px;
+    border-radius: 16px;
     width: 90%;
     max-width: 400px;
     text-align: center;
+    border: 1px solid var(--color-outline-variant);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .modal h3 {
-    font-size: 20px;
+    font-size: 1.125rem;
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    color: var(--color-on-surface);
 }
 
 .modal p {
-    font-size: 14px;
-    color: var(--text-color);
-    margin-bottom: 30px;
+    font-size: var(--text-caption);
+    color: var(--color-on-surface-variant);
+    margin-bottom: var(--space-3);
 }
 
 .modal-buttons {
@@ -257,29 +351,41 @@ body {
 }
 
 .btn-cancel {
-    background-color: #333;
-    color: white;
+    background-color: var(--color-surface-highest);
+    color: var(--color-on-surface);
+    border: 1px solid var(--color-outline-variant);
 }
 
 .btn-confirm {
-    background-color: var(--primary-color);
-    color: white;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: var(--color-on-primary);
 }
 
-/* 토스트 알림 */
+/* 파괴적 확인(연동 해제 등) — primary와 구분 */
+.btn-confirm--danger {
+    background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+    color: #fff;
+}
+
+.btn-confirm--danger:hover {
+    filter: brightness(1.06);
+}
+
+/* 토스트 */
 .toast {
     position: fixed;
     bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 60px;
-    border-radius: 30px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: var(--color-on-primary);
+    padding: 12px 48px;
+    border-radius: 999px;
     font-size: 14px;
     font-weight: 600;
     display: none;
     z-index: 2000;
+    box-shadow: 0 4px 20px rgba(163, 201, 255, 0.25);
 }
 
 .toast.show {
@@ -294,19 +400,19 @@ body {
     100% { opacity: 0; transform: translate(-50%, 0); }
 }
 
-/* 프로필 드롭다운 메뉴 */
+/* 프로필 드롭다운 */
 .profile-dropdown {
     position: absolute;
-    top: 40px;
+    top: 48px;
     right: 0;
-    background: white;
-    border: 1px solid var(--border-color);
+    background: var(--color-surface-high);
+    border: 1px solid var(--color-outline-variant);
     border-radius: 8px;
-    width: 120px; /* 너비 축소 */
+    width: 140px;
     display: none;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     z-index: 2000;
 }
 
@@ -315,12 +421,12 @@ body {
 }
 
 .profile-dropdown a {
-    padding: 8px; /* 높이(패딩) 축소 */
+    padding: 10px 12px;
     text-decoration: none;
-    color: var(--text-color);
-    font-size: 13px; /* 폰트 크기 조절 */
+    color: var(--color-on-surface);
+    font-size: 13px;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-outline-variant);
 }
 
 .profile-dropdown a:last-child {
@@ -328,27 +434,20 @@ body {
 }
 
 .profile-dropdown a:hover {
-    background-color: #E9E9E9;
+    background-color: var(--color-surface-highest);
 }
 
-/* 뒤로가기 버튼 */
 .btn-back {
     text-decoration: none;
-    color: var(--text-color);
+    color: var(--color-on-surface);
     font-size: 24px;
     position: absolute;
     left: 0;
     cursor: pointer;
+    line-height: 1;
 }
 
-/* 프로필 아이콘 위치 설정 */
-.profile-icon {
-    position: absolute;
-    right: 0;
-}
-
-/* 헤더 중앙 정렬 및 폭 설정 */
 #header .header-container {
     max-width: var(--max-width);
-    padding: 0;
+    padding: 0 16px;
 }

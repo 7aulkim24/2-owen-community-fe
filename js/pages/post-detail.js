@@ -521,4 +521,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (confirmBtn) confirmBtn.addEventListener('click', confirmDeletePost);
         if (cancelBtn) cancelBtn.addEventListener('click', closeDeletePostModal);
     }
+
+    const fabCreate = document.getElementById('btn-create-post');
+    if (fabCreate) {
+        if (!currentUser) {
+            fabCreate.style.display = 'none';
+        } else {
+            fabCreate.addEventListener('click', () => {
+                window.location.href = '/make-post.html';
+            });
+        }
+    }
 });

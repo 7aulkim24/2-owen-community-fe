@@ -33,16 +33,18 @@ HTML, CSS, Vanilla JS만을 사용하여 구현한 커뮤니티 서비스 프론
 - **`dist/`**: 프로덕션 빌드 결과물 (최소화된 정적 에셋 및 최적화된 경로의 HTML)
 
 ## 기술 스택 및 빌드
-- **Stack**: HTML, CSS, Vanilla JS (ES6+)
-- **Build**: `esbuild` 기반 번들링 및 최소화 (JS/CSS)
+- **Stack**: HTML, CSS, Vanilla JS (ES6+), **Tailwind CSS v3** (유틸리티 — CDN 미사용)
+- **Build**: `tailwindcss` CLI + PostCSS, `esbuild`로 JS·통합 CSS 최소화
+- **Tailwind**: `tailwind.config.js` · `css/tailwind.entry.css` — `pages/**/*.html`·`js/**/*.js` 스캔. `preflight: false`로 `common.css`와 충돌 방지.
 - **Commands**:
-  - `npm run build:prod`: 프로덕션 빌드 (결과물: `dist/`)
-  - `npm run build`: 개발용 빌드 (HTML/CSS 위주)
+  - `npm run build:prod`: 프로덕션 빌드 (`dist/`, HTML은 `css/style.min.css` 단일 번들)
+  - `npm run build`: 개발용 빌드 (`dist/css/tailwind.css` + `common.css` + `pages/*.css`)
 
 ## 시작하기
-1. **백엔드**: `http://localhost:8000`에서 서버 실행 확인
-2. **실행**: VS Code **Live Server**로 `pages/auth/login.html` 오픈 (포트 5500 권장)
-3. **빌드**: `npm install` 후 `npm run build:prod`로 최적화 결과물 확인 가능
+1. **의존성**: 저장소 **루트**(`Prooflog/`) 또는 이 디렉터리에서 `npm install` — 루트에 `package.json`(workspaces)이 있으면 루트에서 한 번만 설치해도 됩니다.
+2. **빌드**: `npm run build` 후 **`dist/`에서 정적 서빙** (예: `python3 -m http.server 5500 --directory dist`) — Tailwind는 빌드된 `dist/css/tailwind.css`를 로드합니다.
+3. **백엔드**: `http://localhost:8000` 연동 시 루트 `dev.sh` 또는 API 프록시 환경에 맞게 실행
+4. **프로덕션 미리보기**: `npm run build:prod` 후 `dist/` 서빙 (CDN Tailwind 경고 없음)
 
 ## EC2 배포 요약 (최신)
 - API 기본 경로를 절대 URL에서 상대 경로(`/api`) 중심으로 전환했습니다.

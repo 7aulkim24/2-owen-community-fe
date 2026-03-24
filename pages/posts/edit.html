@@ -1,31 +1,48 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html class="dark" lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게시글 수정 - Prooflog</title>
     <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/tailwind.css">
     <link rel="stylesheet" href="../../css/common.css">
     <link rel="stylesheet" href="../../css/pages/edit-post.css">
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { background-color: #10141a; color: #dfe2eb; }
+    </style>
 </head>
-<body>
-    <header id="header">
-        <div class="header-container">
-            <a href="javascript:history.back()" class="btn-back">&lt;</a>
-            <h1 class="header-title">Prooflog</h1>
-            <div class="profile-icon" id="header-profile-btn">
-                <img loading="lazy" src="./assets/default-profile.png" alt="" id="header-profile-img">
-                <div class="profile-dropdown" id="profile-dropdown">
-                    <a href="../profile/edit-profile.html">회원정보수정</a>
-                    <a href="../profile/edit-password.html">비밀번호수정</a>
-                    <a href="../integration/manage.html">연동 관리</a>
-                    <a href="#" id="logout-link">로그아웃</a>
+<body class="font-sans antialiased min-h-screen pb-24 md:pb-0 text-[#dfe2eb]">
+    <header id="header" class="!bg-[#10141a] border-b border-[#414752]/40 sticky top-0 z-50 shadow-[0_1px_0_rgba(163,201,255,0.06)]">
+        <div class="app-header-inner flex justify-between items-center px-4 sm:px-6 py-3 w-full max-w-[var(--max-width)] mx-auto">
+            <div class="flex items-center gap-1 sm:gap-2 min-w-0">
+                <a href="list.html" class="text-[#a3c9ff] p-2 hover:bg-[#353940] rounded-lg transition-colors shrink-0 md:hidden" aria-label="피드로">
+                    <span class="material-symbols-outlined text-[24px]">arrow_back</span>
+                </a>
+                <a href="list.html" class="text-xl font-black text-[#a3c9ff] tracking-tighter truncate">Prooflog</a>
+            </div>
+            <nav class="hidden md:flex items-center gap-8 shrink-0">
+                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base py-1 px-2 rounded-lg" href="list.html">Feed</a>
+                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base py-1 px-2 rounded-lg" href="../../draft-review.html">Records</a>
+            </nav>
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="profile-icon relative" id="header-profile-btn">
+                    <img loading="lazy" src="../../assets/default-profile.png" alt="" id="header-profile-img" class="w-10 h-10 rounded-full object-cover border border-[#414752]/40">
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <a href="../profile/edit-profile.html">회원정보수정</a>
+                        <a href="../profile/edit-password.html">비밀번호수정</a>
+                        <a href="../integration/manage.html">연동 관리</a>
+                        <a href="#" id="logout-link">로그아웃</a>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main id="app">
+    <main id="app" class="app-main">
         <section class="edit-post-container">
             <h2 class="page-title">게시글 수정</h2>
             <form id="edit-post-form">
@@ -37,7 +54,6 @@
                     <label for="post-content">내용*</label>
                     <textarea id="post-content" name="content" placeholder="내용을 입력해주세요." required></textarea>
                 </div>
-
                 <div class="input-group image-upload-group">
                     <label>이미지</label>
                     <div class="file-input-wrapper">
@@ -45,10 +61,8 @@
                         <input type="file" id="post-image" name="image" accept="image/*" multiple>
                         <span id="file-count-display">최대 5장까지 선택 가능</span>
                     </div>
-                    <!-- 이미지 미리보기 -->
                     <div id="image-preview-container" class="image-preview-container"></div>
                 </div>
-
                 <div class="form-footer">
                     <button type="button" class="btn-submit active" id="btn-submit">수정하기</button>
                 </div>
@@ -56,9 +70,27 @@
         </section>
     </main>
 
+    <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-3 pt-2 bg-[#10141a]/90 backdrop-blur-xl border-t border-[#414752]/30 z-40" style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom));" aria-label="주요 메뉴">
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="list.html">
+            <span class="material-symbols-outlined text-[22px]">grid_view</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Feed</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../../draft-review.html">
+            <span class="material-symbols-outlined text-[22px]">history_edu</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Records</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../integration/manage.html">
+            <span class="material-symbols-outlined text-[22px]">link</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">연동</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../profile/edit-profile.html">
+            <span class="material-symbols-outlined text-[22px]">account_circle</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Profile</span>
+        </a>
+    </nav>
+
     <div id="toast" class="toast"></div>
 
-    <!-- 수정 완료 모달 -->
     <div id="success-modal" class="modal-overlay">
         <div class="modal">
             <h3>수정 완료</h3>

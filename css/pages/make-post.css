@@ -1,119 +1,113 @@
-/* 게시글 작성 페이지 레이아웃 */
+/* 게시글 작성 — 다크 테마 */
 .make-post-container {
     width: 100%;
     max-width: var(--max-width);
-    margin: 40px auto;
-    padding: 0;
+    margin: var(--space-4) auto;
+    padding: 0 var(--space-2) var(--space-4);
     display: flex;
     flex-direction: column;
 }
 
-/* 페이지 제목 */
 .page-title {
     text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 40px;
+    font-size: var(--text-section-title);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+    color: var(--color-on-surface);
+    letter-spacing: -0.02em;
 }
 
-/* 게시글 작성 폼 */
 #make-post-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 1rem;
 }
 
-/* 입력 필드 그룹 */
-.input-group {
+#make-post-form .input-group {
     display: flex;
     flex-direction: column;
     text-align: left;
 }
 
-.input-group label {
+#make-post-form .input-group label {
     display: block;
-    font-weight: 700;
-    font-size: 16px;
-    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-on-surface-variant);
 }
 
-.input-group input[type="text"] {
+#make-post-form .input-group input[type="text"] {
     width: 100%;
-    padding: 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 14px;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
     outline: none;
+    background: var(--color-surface-high);
+    color: var(--color-on-surface);
 }
 
-/* 본문 입력 영역 */
-.input-group textarea {
+#make-post-form .input-group textarea {
     width: 100%;
-    height: 320px;
-    padding: 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 14px;
-    resize: none;
+    min-height: 280px;
+    padding: 1rem;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    resize: vertical;
     outline: none;
+    background: var(--color-surface-high);
+    color: var(--color-on-surface);
 }
 
-/* 도움말 텍스트 */
-.helper-text {
-    text-align: center;
-    margin: 10px 0;
-    font-weight: 500;
-}
-
-/* 이미지 업로드 영역 */
-.image-upload-group {
-    margin-top: 10px;
-}
+.image-upload-group { margin-top: 0.5rem; }
 
 .file-input-wrapper {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
-.file-input-wrapper input[type="file"] {
-    display: none;
-}
+.file-input-wrapper input[type="file"] { display: none; }
 
-/* 파일 선택 버튼 */
 .btn-file-select {
     display: inline-block;
-    background-color: #D9D9D9;
-    color: var(--text-color);
-    padding: 6px 16px;
-    border-radius: 4px;
-    font-size: 14px;
+    background-color: var(--color-surface-highest);
+    color: var(--color-on-surface);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    border: 1px solid #BDBDBD;
+    border: 1px solid var(--color-outline-variant);
+    transition: border-color 0.2s, background 0.2s;
 }
 
-/* 선택된 파일명 표시 */
+.btn-file-select:hover {
+    border-color: var(--color-primary);
+}
+
 #file-count-display {
-    font-size: 14px;
-    color: var(--secondary-text);
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
 }
 
-/* 이미지 미리보기 그리드 */
 .image-preview-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
-    margin-top: 16px;
+    gap: 0.75rem;
+    margin-top: 1rem;
 }
 
 .image-preview-item {
     position: relative;
     width: 100%;
-    padding-bottom: 100%; /* 1:1 비율 */
-    border-radius: 8px;
+    padding-bottom: 100%;
+    border-radius: 0.5rem;
     overflow: hidden;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--color-outline-variant);
 }
 
 .image-preview-item img {
@@ -132,7 +126,7 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.65);
     color: white;
     border: none;
     font-size: 16px;
@@ -140,18 +134,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
-}
-
-.image-preview-item .btn-remove-image:hover {
-    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .image-preview-item .image-order {
     position: absolute;
     bottom: 4px;
     left: 4px;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.65);
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -159,40 +148,36 @@
     font-weight: 600;
 }
 
-/* 폼 하단 버튼 영역 */
 .form-footer {
-    margin-top: 20px;
+    margin-top: 1.5rem;
     display: flex;
     justify-content: center;
 }
 
-/* 게시글 등록 버튼 */
 .btn-submit {
-    width: 280px;
-    padding: 12px;
+    width: min(280px, 100%);
+    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 24px;
-    font-size: 16px;
+    border-radius: 999px;
+    font-size: 1rem;
     font-weight: 700;
-    background-color: #ACA0EB; /* 비활성화 기본 색상 */
-    color: var(--white);
-    cursor: pointer;
-    transition: all 0.3s;
+    background: var(--color-outline-variant);
+    color: var(--color-on-surface-variant);
+    cursor: not-allowed;
+    transition: all 0.2s;
 }
 
-/* 활성화 상태 (JS에서 제어) */
 .btn-submit.active {
-    background-color: #7F6AEE;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: var(--color-on-primary);
     cursor: pointer;
 }
 
-/* 반응형 대응 (모바일) */
+.btn-submit.active:hover {
+    filter: brightness(1.06);
+}
+
 @media (max-width: 480px) {
-    .make-post-container {
-        margin: 20px auto;
-    }
-    
-    .input-group textarea {
-        height: 250px;
-    }
+    .make-post-container { margin: 1rem auto; }
+    #make-post-form .input-group textarea { min-height: 220px; }
 }

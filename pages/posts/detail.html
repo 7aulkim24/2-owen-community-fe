@@ -1,69 +1,82 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html class="dark" lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게시글 상세 - Prooflog</title>
     <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/tailwind.css">
     <link rel="stylesheet" href="../../css/common.css">
     <link rel="stylesheet" href="../../css/pages/post-detail.css">
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { background-color: #10141a; color: #dfe2eb; }
+    </style>
 </head>
-<body class="post-detail-view">
-    <header id="header">
-        <div class="header-container">
-            <a href="list.html" class="btn-back">&lt;</a>
-            <h1 class="header-title">Prooflog</h1>
-            <div class="profile-icon" id="header-profile-btn">
-                <img loading="lazy" src="./assets/default-profile.png" alt="" id="header-profile-img">
-                <div class="profile-dropdown" id="profile-dropdown">
-                    <a href="../profile/edit-profile.html">회원정보수정</a>
-                    <a href="../profile/edit-password.html">비밀번호수정</a>
-                    <a href="../integration/manage.html">연동 관리</a>
-                    <a href="#" id="logout-link">로그아웃</a>
+<body class="post-detail-view min-h-screen pb-24 md:pb-0 font-sans antialiased">
+    <header id="header" class="!bg-[#10141a] border-b border-[#414752]/40 sticky top-0 z-50 shadow-[0_1px_0_rgba(163,201,255,0.06)]">
+        <div class="app-header-inner flex justify-between items-center px-4 sm:px-6 py-3 w-full max-w-[var(--max-width)] mx-auto">
+            <div class="flex items-center gap-1 sm:gap-2 min-w-0">
+                <a href="../../posts.html" class="text-[#a3c9ff] p-2 hover:bg-[#353940] rounded-lg transition-colors shrink-0 md:hidden" aria-label="피드로 돌아가기">
+                    <span class="material-symbols-outlined text-[24px]">arrow_back</span>
+                </a>
+                <a href="../../posts.html" class="text-xl font-black text-[#a3c9ff] tracking-tighter truncate">Prooflog</a>
+            </div>
+            <nav class="hidden md:flex items-center gap-8 shrink-0">
+                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base py-1 px-2 rounded-lg" href="../../posts.html">Feed</a>
+                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base py-1 px-2 rounded-lg" href="../../draft-review.html">Records</a>
+            </nav>
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="profile-icon relative" id="header-profile-btn">
+                    <img loading="lazy" src="../../assets/default-profile.png" alt="" id="header-profile-img" class="w-10 h-10 rounded-full object-cover border border-[#414752]/40">
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <a href="../profile/edit-profile.html">회원정보수정</a>
+                        <a href="../profile/edit-password.html">비밀번호수정</a>
+                        <a href="../integration/manage.html">연동 관리</a>
+                        <a href="#" id="logout-link">로그아웃</a>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main id="app" class="post-detail-page">
-        <!-- 게시글 상세 영역 -->
+    <main id="app" class="post-detail-page app-main">
         <article class="post-detail">
             <header class="post-header">
                 <h2 class="post-detail-title"></h2>
                 <div class="post-detail-info">
                     <div class="post-author-group">
                         <div class="author-img">
-                            <img loading="lazy" src="./assets/default-profile.png" alt="">
+                            <img loading="lazy" src="../../assets/default-profile.png" alt="">
                         </div>
                         <span class="author-name"></span>
                         <span class="post-date"></span>
                     </div>
                     <div class="post-actions" style="display: none;">
-                        <button class="btn-action">수정</button>
-                        <button class="btn-action" id="btn-delete-post">삭제</button>
+                        <button type="button" class="btn-action">수정</button>
+                        <button type="button" class="btn-action" id="btn-delete-post">삭제</button>
                     </div>
                 </div>
             </header>
-            
-            <!-- 사진처럼 작성자 정보 아래에 위치하는 구분선 -->
+
             <div class="post-detail-divider"></div>
 
             <div class="post-content">
-                <!-- 게시글 이미지 캐러셀 -->
                 <div class="post-carousel" id="post-carousel" style="display: none;">
-                    <button type="button" class="carousel-btn carousel-prev" id="carousel-prev">‹</button>
+                    <button type="button" class="carousel-btn carousel-prev" id="carousel-prev" aria-label="이전 이미지">‹</button>
                     <div class="carousel-images-wrapper">
                         <img class="carousel-image" src="" alt="게시글 이미지" loading="lazy">
                     </div>
-                    <button type="button" class="carousel-btn carousel-next" id="carousel-next">›</button>
+                    <button type="button" class="carousel-btn carousel-next" id="carousel-next" aria-label="다음 이미지">›</button>
                     <div class="carousel-indicator" id="carousel-indicator">1 / 1</div>
                 </div>
                 <p class="post-text"></p>
             </div>
 
-            <!-- 통계 박스 (좋아요, 조회수, 댓글) -->
             <div class="post-stats-container">
-                <div class="stat-box" id="btn-like">
+                <div class="stat-box" id="btn-like" role="button" tabindex="0">
                     <span class="stat-count">0</span>
                     <span class="stat-label">좋아요수</span>
                 </div>
@@ -78,21 +91,39 @@
             </div>
         </article>
 
-        <!-- 댓글 입력 영역 -->
         <section class="comment-input-section">
-            <textarea placeholder="댓글을 남겨주세요!" id="comment-textarea"></textarea>
+            <textarea placeholder="댓글을 남겨주세요!" id="comment-textarea" aria-label="댓글 입력"></textarea>
             <div class="comment-submit-bar">
-                <button class="btn-comment-submit" id="btn-comment-submit" disabled>댓글 등록</button>
+                <button type="button" class="btn-comment-submit" id="btn-comment-submit" disabled>댓글 등록</button>
             </div>
         </section>
 
-        <!-- 댓글 목록 영역 -->
-        <section class="comment-list-section">
-            <!-- 댓글 데이터가 여기에 렌더링됩니다 -->
-        </section>
+        <section class="comment-list-section" aria-label="댓글 목록"></section>
     </main>
 
-    <!-- 게시글 삭제 확인 모달 -->
+    <button type="button" id="btn-create-post" class="fab-create fixed bottom-24 right-5 md:bottom-8 md:right-8 w-14 h-14 rounded-full flex items-center justify-center z-50 transition-transform" aria-label="게시글 작성">
+        <span class="material-symbols-outlined text-[28px] font-bold">add</span>
+    </button>
+
+    <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-3 pt-2 bg-[#10141a]/90 backdrop-blur-xl border-t border-[#414752]/30 z-40" style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom));" aria-label="주요 메뉴">
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors rounded-xl min-w-[3.5rem]" href="../../posts.html">
+            <span class="material-symbols-outlined text-[22px]">grid_view</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Feed</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../../draft-review.html">
+            <span class="material-symbols-outlined text-[22px]">history_edu</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Records</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../integration/manage.html">
+            <span class="material-symbols-outlined text-[22px]">link</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">연동</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../profile/edit-profile.html">
+            <span class="material-symbols-outlined text-[22px]">account_circle</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Profile</span>
+        </a>
+    </nav>
+
     <div class="modal-overlay" id="delete-post-modal">
         <div class="modal">
             <h3>게시글을 삭제하시겠습니까?</h3>
@@ -104,20 +135,17 @@
         </div>
     </div>
 
-    <!-- 댓글 삭제 확인 모달 (필요시 사용) -->
     <div class="modal-overlay" id="delete-comment-modal">
         <div class="modal">
             <h3>댓글을 삭제하시겠습니까?</h3>
             <p>삭제한 내용은 복구 할 수 없습니다.</p>
             <div class="modal-buttons">
-                <button class="btn-modal btn-cancel">취소</button>
-                <button class="btn-modal btn-confirm">확인</button>
+                <button type="button" class="btn-modal btn-cancel">취소</button>
+                <button type="button" class="btn-modal btn-confirm">확인</button>
             </div>
         </div>
     </div>
 
-
-    <!-- 알림 모달 -->
     <div id="alert-modal" class="modal-overlay">
         <div class="modal">
             <h3 id="alert-modal-title">알림</h3>

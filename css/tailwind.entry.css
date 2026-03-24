@@ -1,0 +1,7 @@
+/**
+ * Tailwind 진입점 — CDN 대신 빌드 산출물(dist/css/tailwind.css)로 제공
+ * preflight 끔: common.css와 충돌 방지 (유틸리티만 사용)
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

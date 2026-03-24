@@ -160,15 +160,16 @@ export const showModal = ({ title, message, confirmText = '확인', onConfirm = 
 
     const modalOverlay = document.createElement('div');
     modalOverlay.id = 'cursor-global-modal';
-    modalOverlay.className = 'modal-overlay';
-    modalOverlay.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; z-index: 9999;';
-    
+    // common.css 다크 모달 토큰(.modal-overlay.show, .modal, .btn-confirm) 사용 — 인라인 흰 배경 제거
+    modalOverlay.className = 'modal-overlay show';
+    modalOverlay.style.zIndex = '9999';
+
     modalOverlay.innerHTML = `
-        <div class="modal" style="background: white; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; position: relative;">
-            <h3 id="cursor-global-modal-title" style="font-size: 20px; font-weight: 700; margin-bottom: 15px;"></h3>
-            <p id="cursor-global-modal-message" style="font-size: 14px; color: #000; margin-bottom: 30px;"></p>
-            <div class="modal-buttons" style="display: flex; gap: 10px; justify-content: center;">
-                <button type="button" class="btn-modal btn-confirm" id="cursor-global-modal-confirm" style="flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; background-color: #ACA0EB; color: white;">확인</button>
+        <div class="modal">
+            <h3 id="cursor-global-modal-title"></h3>
+            <p id="cursor-global-modal-message"></p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-modal btn-confirm" id="cursor-global-modal-confirm">확인</button>
             </div>
         </div>
     `;
@@ -197,6 +198,81 @@ export const showModal = ({ title, message, confirmText = '확인', onConfirm = 
         if (e.target === modalOverlay) {
             // e.stopPropagation(); // 막아도 되고 안막아도 됨
         }
+    };
+};
+
+/**
+ * 확인/취소 2버튼 모달 (브라우저 confirm 대체, 다크 토큰과 동일)
+ * @param {Object} options
+ * @param {string} options.title
+ * @param {string} options.message
+ * @param {string} [options.confirmText='확인']
+ * @param {string} [options.cancelText='취소']
+ * @param {() => void} [options.onConfirm]
+ * @param {() => void} [options.onCancel] — 취소 클릭 시 (모달 닫힌 뒤)
+ * @param {boolean} [options.dangerConfirm=false] — true면 파괴적 액션용 빨간 확인 버튼
+ */
+export const showConfirmModal = ({
+    title,
+    message,
+    confirmText = '확인',
+    cancelText = '취소',
+    onConfirm = null,
+    onCancel = null,
+    dangerConfirm = false,
+}) => {
+    const existing = document.getElementById('cursor-global-confirm-modal');
+    if (existing) existing.remove();
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'cursor-global-confirm-modal';
+    modalOverlay.className = 'modal-overlay show';
+    modalOverlay.style.zIndex = '9999';
+
+    const confirmBtnClass = dangerConfirm
+        ? 'btn-modal btn-confirm btn-confirm--danger'
+        : 'btn-modal btn-confirm';
+
+    modalOverlay.innerHTML = `
+        <div class="modal">
+            <h3 id="cursor-global-confirm-title"></h3>
+            <p id="cursor-global-confirm-message"></p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-modal btn-cancel" id="cursor-global-confirm-cancel"></button>
+                <button type="button" class="${confirmBtnClass}" id="cursor-global-confirm-ok"></button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    const titleEl = modalOverlay.querySelector('#cursor-global-confirm-title');
+    const messageEl = modalOverlay.querySelector('#cursor-global-confirm-message');
+    const cancelBtn = modalOverlay.querySelector('#cursor-global-confirm-cancel');
+    const okBtn = modalOverlay.querySelector('#cursor-global-confirm-ok');
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    cancelBtn.textContent = cancelText;
+    okBtn.textContent = confirmText;
+
+    const close = () => {
+        modalOverlay.style.display = 'none';
+        modalOverlay.remove();
+    };
+
+    cancelBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        close();
+        if (onCancel) onCancel();
+    };
+
+    okBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        close();
+        if (onConfirm) onConfirm();
     };
 };
 

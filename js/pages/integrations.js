@@ -1,4 +1,4 @@
-import { get, post, del, handleApiError, handleApiSuccess, showToast, getFullImageUrl } from '../api.js';
+import { get, post, del, handleApiError, handleApiSuccess, showToast, showConfirmModal, getFullImageUrl } from '../api.js';
 
 const PROVIDERS = {
     github: {
@@ -85,46 +85,61 @@ async function loadIntegrations() {
             .filter((key) => !connectedProviders.has(key))
             .map(renderPendingCard);
         pendingEl.innerHTML = pendingCards.join('');
-
-        bindEvents();
     } catch (error) {
         handleApiError(error);
     }
 }
 
-function bindEvents() {
-    document.querySelectorAll('.btn-connect').forEach((btn) => {
-        btn.addEventListener('click', async (e) => {
-            const provider = e.currentTarget.dataset.provider;
-            if (provider !== 'github') return;
-            try {
-                const response = await get('/v1/integrations/github/authorize');
-                const url = response?.data?.authorizeUrl;
-                if (url) {
-                    window.location.href = url;
-                } else {
-                    showToast('연동 URL을 가져올 수 없습니다.', 'error');
-                }
-            } catch (error) {
-                handleApiError(error);
-            }
-        });
-    });
+/** innerHTML 갱신마다 호출하면 리스너가 중복됨 → #integrations-list에 위임 한 번만 바인딩 */
+function bindIntegrationsListDelegation() {
+    const list = document.getElementById('integrations-list');
+    if (!list || list.dataset.integrationDelegation === '1') return;
+    list.dataset.integrationDelegation = '1';
 
-    document.querySelectorAll('.btn-disconnect').forEach((btn) => {
-        if (btn.classList.contains('btn-disabled')) return;
-        btn.addEventListener('click', async (e) => {
-            const accountId = e.currentTarget.dataset.accountId;
+    list.addEventListener('click', (e) => {
+        const connectBtn = e.target.closest('.btn-connect');
+        if (connectBtn && !connectBtn.classList.contains('btn-disabled')) {
+            const provider = connectBtn.dataset.provider;
+            if (provider !== 'github') return;
+            void (async () => {
+                try {
+                    const response = await get('/v1/integrations/github/authorize');
+                    const url = response?.data?.authorizeUrl;
+                    if (url) {
+                        window.location.href = url;
+                    } else {
+                        showToast('연동 URL을 가져올 수 없습니다.', 'error');
+                    }
+                } catch (error) {
+                    handleApiError(error);
+                }
+            })();
+            return;
+        }
+
+        const disconnectBtn = e.target.closest('.btn-disconnect');
+        if (disconnectBtn && !disconnectBtn.classList.contains('btn-disabled')) {
+            const accountId = disconnectBtn.dataset.accountId;
             if (!accountId) return;
-            if (!confirm('연동을 해제하시겠습니까?')) return;
-            try {
-                await del(`/v1/integrations/${accountId}`);
-                showToast('연동이 해제되었습니다.', 'success');
-                loadIntegrations();
-            } catch (error) {
-                handleApiError(error);
-            }
-        });
+            showConfirmModal({
+                title: '연동 해제',
+                message: '연동을 해제하시겠습니까? GitHub 활동 자동 수집이 중단됩니다.',
+                confirmText: '해제',
+                cancelText: '취소',
+                dangerConfirm: true,
+                onConfirm: () => {
+                    void (async () => {
+                        try {
+                            await del(`/v1/integrations/${accountId}`);
+                            showToast('연동이 해제되었습니다.', 'success');
+                            loadIntegrations();
+                        } catch (error) {
+                            handleApiError(error);
+                        }
+                    })();
+                },
+            });
+        }
     });
 }
 
@@ -207,5 +222,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    bindIntegrationsListDelegation();
     await loadIntegrations();
 });

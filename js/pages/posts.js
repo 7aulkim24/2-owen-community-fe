@@ -11,6 +11,8 @@ let currentUser = null;
 let infiniteScrollObserver = null;
 let currentPostType = 'all';
 let loadId = 0;
+/** 동시에 진행 중인 loadPosts 호출 수 (stale 완료 시에도 플래그가 풀리도록 사용) */
+let activeLoadRequests = 0;
 
 try {
     const userStr = localStorage.getItem('user');
@@ -39,10 +41,12 @@ function renderPosts(posts, append = false) {
 }
 
 // 데이터 로드
-async function loadPosts(append = false) {
-    if (isLoading || (!hasNext && append)) return;
-    
+// force: 필터 전환 등 — 이전 요청이 진행 중이어도 새 목록 로드를 시작해야 함(연속 클릭 시 loadId만 올라가고 fetch가 스킵되는 버그 방지)
+async function loadPosts(append = false, force = false) {
+    if (!force && (isLoading || (!hasNext && append))) return;
+
     isLoading = true;
+    activeLoadRequests += 1;
     const thisLoadId = ++loadId;
 
     try {
@@ -72,7 +76,8 @@ async function loadPosts(append = false) {
     } catch (error) {
         if (thisLoadId === loadId) handleApiError(error);
     } finally {
-        if (thisLoadId === loadId) isLoading = false;
+        activeLoadRequests -= 1;
+        if (activeLoadRequests === 0) isLoading = false;
     }
 }
 
@@ -85,15 +90,16 @@ function handleScrollFallback() {
 }
 
 // 데이터 초기화 및 재로딩 함수
+// loadId는 loadPosts() 시작 시에만 증가 — 여기서 중복 증가 시 연속 필터 클릭 시 세대 불일치로 stale만 남는 문제 발생
 function resetAndReload() {
-    loadId++;
+    isLoading = false;
     currentOffset = 0;
     hasNext = true;
     postList.innerHTML = '';
     if (infiniteScrollObserver) {
         infiniteScrollObserver.disconnect();
     }
-    loadPosts(false);
+    loadPosts(false, true);
     setupInfiniteScroll();
 }
 
