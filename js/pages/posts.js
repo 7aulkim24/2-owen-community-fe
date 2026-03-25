@@ -10,6 +10,15 @@ let hasNext = true;
 let currentUser = null;
 let infiniteScrollObserver = null;
 let currentPostType = 'all';
+const FEED_SORT_KEY = 'prooflogFeedSort';
+const FEED_SORT_VALUES = new Set(['published', 'activity']);
+let currentSort = 'published';
+try {
+    const saved = localStorage.getItem(FEED_SORT_KEY);
+    if (saved && FEED_SORT_VALUES.has(saved)) currentSort = saved;
+} catch (_) {
+    /* ignore */
+}
 let loadId = 0;
 /** 동시에 진행 중인 loadPosts 호출 수 (stale 완료 시에도 플래그가 풀리도록 사용) */
 let activeLoadRequests = 0;
@@ -52,7 +61,8 @@ async function loadPosts(append = false, force = false) {
     try {
         const queryOpts = {
             offset: currentOffset,
-            limit: LIMIT
+            limit: LIMIT,
+            sort: currentSort
         };
         if (currentPostType !== 'all') {
             queryOpts.post_type = currentPostType;
@@ -165,6 +175,29 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 데이터 업데이트
             currentPostType = targetBtn.dataset.type;
+            resetAndReload();
+        });
+    });
+
+    const sortTabs = document.querySelectorAll('.sort-tab');
+    const syncSortTabUi = () => {
+        sortTabs.forEach(t => {
+            t.classList.toggle('active', t.dataset.sort === currentSort);
+        });
+    };
+    syncSortTabUi();
+    sortTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const targetBtn = e.target.closest('.sort-tab');
+            const next = targetBtn?.dataset?.sort;
+            if (!next || !FEED_SORT_VALUES.has(next) || next === currentSort) return;
+            currentSort = next;
+            try {
+                localStorage.setItem(FEED_SORT_KEY, currentSort);
+            } catch (_) {
+                /* ignore */
+            }
+            syncSortTabUi();
             resetAndReload();
         });
     });

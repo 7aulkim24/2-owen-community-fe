@@ -21,7 +21,7 @@
             <a href="../../posts.html" class="text-xl font-black text-[#a3c9ff] tracking-tighter shrink-0">Prooflog</a>
             <nav class="hidden md:flex items-center gap-6">
                 <a class="text-[#a3c9ff] font-bold text-base rounded-lg px-3 py-1.5 ring-1 ring-inset ring-[#a3c9ff]/35 bg-[#262a31]/80" href="../../posts.html">Feed</a>
-                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base px-3 py-1.5 rounded-lg" href="../../draft-review.html">Records</a>
+                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base px-3 py-1.5 rounded-lg" href="../../drafts.html">Records</a>
             </nav>
             <div class="flex items-center gap-3">
                 <div class="profile-icon relative" id="header-profile-btn">
@@ -30,6 +30,7 @@
                         <a href="../profile/edit-profile.html">회원정보수정</a>
                         <a href="../profile/edit-password.html">비밀번호수정</a>
                         <a href="../integration/manage.html">연동 관리</a>
+                        <a href="../../drafts.html">초안 목록</a>
                         <a href="#" id="logout-link">로그아웃</a>
                     </div>
                 </div>
@@ -52,6 +53,13 @@
                     <button type="button" class="filter-tab" data-type="weekly_digest">주간 회고</button>
                 </div>
             </div>
+            <div class="sort-row" id="sort-row" aria-label="피드 정렬">
+                <span class="sort-label">정렬</span>
+                <div class="sort-tabs" id="sort-tabs">
+                    <button type="button" class="sort-tab active" data-sort="published" title="피드에 올라온 순서">게시일순</button>
+                    <button type="button" class="sort-tab" data-sort="activity" title="자동 로그는 커밋·푸시 근거 날짜 기준">활동일순</button>
+                </div>
+            </div>
             <div id="post-list"></div>
             <div id="infinite-scroll-sentinel" class="h-4 w-full" aria-hidden="true"></div>
         </section>
@@ -66,7 +74,7 @@
             <span class="material-symbols-outlined text-[22px]">grid_view</span>
             <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Feed</span>
         </a>
-        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors" href="../../draft-review.html">
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors" href="../../drafts.html">
             <span class="material-symbols-outlined text-[22px]">history_edu</span>
             <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Records</span>
         </a>

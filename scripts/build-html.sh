@@ -32,6 +32,11 @@ if [ ! -f "pages/profile/edit-profile.html" ] || [ ! -f "pages/profile/edit-pass
     exit 1
 fi
 
+if [ ! -f "pages/drafts/list.html" ]; then
+    echo "Error: pages/drafts/list.html not found"
+    exit 1
+fi
+
 # pages/ 디렉토리의 HTML 파일들을 URL 구조에 맞게 복사
 # auth 그룹
 cp pages/auth/login.html "$OUTPUT_DIR/login.html"
@@ -50,6 +55,9 @@ cp pages/profile/edit-password.html "$OUTPUT_DIR/edit-password.html"
 # integration 그룹
 cp pages/integration/manage.html "$OUTPUT_DIR/integration.html"
 
+# 초안 목록
+cp pages/drafts/list.html "$OUTPUT_DIR/drafts.html"
+
 # 초안 검토 (pages 우선, 없으면 루트 레거시)
 if [ -f "pages/draft-review.html" ]; then
     cp pages/draft-review.html "$OUTPUT_DIR/draft-review.html"
@@ -67,6 +75,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     (cd "$OUTPUT_DIR" && sed -i '' \
         -e 's|href="../../posts\.html"|href="posts.html"|g' \
         -e 's|href="../../draft-review\.html"|href="draft-review.html"|g' \
+        -e 's|href="../../drafts\.html"|href="drafts.html"|g' \
+        -e 's|href="drafts/list\.html"|href="drafts.html"|g' \
         -e 's|href="../../login\.html"|href="login.html"|g' \
         -e 's|href="../../signup\.html"|href="signup.html"|g' \
         -e 's|href="../../make-post\.html"|href="make-post.html"|g' \
@@ -80,6 +90,8 @@ else
     (cd "$OUTPUT_DIR" && sed -i \
         -e 's|href="../../posts\.html"|href="posts.html"|g' \
         -e 's|href="../../draft-review\.html"|href="draft-review.html"|g' \
+        -e 's|href="../../drafts\.html"|href="drafts.html"|g' \
+        -e 's|href="drafts/list\.html"|href="drafts.html"|g' \
         -e 's|href="../../login\.html"|href="login.html"|g' \
         -e 's|href="../../signup\.html"|href="signup.html"|g' \
         -e 's|href="../../make-post\.html"|href="make-post.html"|g' \
