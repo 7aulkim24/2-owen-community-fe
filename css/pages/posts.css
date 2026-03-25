@@ -198,6 +198,109 @@ main.app-main {
     margin-bottom: 1rem;
 }
 
+.post-card--auto-log .post-card__source-summary {
+    border-color: rgba(35, 134, 54, 0.35);
+    background: rgba(35, 134, 54, 0.06);
+}
+
+.post-card__stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.post-card__stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'Space Grotesk', monospace;
+    color: var(--color-on-surface);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    background: rgba(38, 42, 49, 0.85);
+    border: 1px solid rgba(65, 71, 82, 0.35);
+}
+
+.post-card__stat-ico {
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+.post-card__source-repos {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+}
+
+/* Unit 6 — 피드 Empty State */
+.feed-empty-state {
+    text-align: center;
+    padding: var(--space-5) var(--space-3);
+    border-radius: 0.75rem;
+    border: 1px dashed rgba(65, 71, 82, 0.45);
+    background: rgba(38, 42, 49, 0.35);
+    max-width: 28rem;
+    margin: var(--space-4) auto 0;
+}
+
+.feed-empty-state__title {
+    font-size: var(--text-section-title);
+    font-weight: 800;
+    color: var(--color-on-surface);
+    margin: 0 0 var(--space-2);
+    letter-spacing: -0.02em;
+}
+
+.feed-empty-state__text {
+    font-size: var(--text-body);
+    color: var(--color-on-surface-variant);
+    line-height: 1.6;
+    margin: 0 0 var(--space-3);
+}
+
+.feed-empty-state__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.feed-empty-state__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: var(--color-on-primary);
+}
+
+.feed-empty-state__btn:hover {
+    filter: brightness(1.08);
+}
+
+.feed-empty-state__link {
+    font-size: 0.8125rem;
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.feed-empty-state--waiting {
+    border-color: rgba(163, 201, 255, 0.25);
+    background: rgba(163, 201, 255, 0.05);
+}
+
 .post-title {
     font-size: var(--text-card-title);
     font-weight: 700;

@@ -1,6 +1,6 @@
 import { get, post, patch, del, handleApiError, handleApiSuccess, showToast, showModal, getFullImageUrl } from '../api.js';
 import { formatCount, formatDate } from '../utils/formatting.js';
-import { buildBadge, buildSourceSummary } from '../utils/card-builder.js';
+import { buildBadge, buildDetailSourceSummary } from '../utils/card-builder.js';
 
 // 상태 관리
 let editingCommentId = null;
@@ -24,12 +24,30 @@ function getPostIdFromUrl() {
     return urlParams.get('id');
 }
 
+/** auto_log 제목: 날짜 기반 헤더 (기계 생성 문자열 대체) */
+function formatAutoLogTitle(post, sourceSummary, postType) {
+    if (postType !== 'auto_log') return post.title;
+    const sd = sourceSummary?.summary_date ?? sourceSummary?.summaryDate;
+    if (!sd || typeof sd !== 'string') return post.title;
+    try {
+        const d = new Date(`${sd}T12:00:00`);
+        if (Number.isNaN(d.getTime())) return post.title;
+        return (
+            d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) +
+            ' · 활동 로그'
+        );
+    } catch {
+        return post.title;
+    }
+}
+
 // 게시글 데이터 렌더링
 function renderPost(post) {
     const postDetail = document.querySelector('.post-detail');
     if (!postDetail) return;
 
     const postType = post.post_type ?? post.postType ?? 'manual';
+    postDetail.classList.toggle('post-detail--auto-log', postType === 'auto_log');
     const postHeader = postDetail.querySelector('.post-header');
 
     // 배지 (post_type이 manual이 아닐 때만)
@@ -50,19 +68,18 @@ function renderPost(post) {
     const postContent = postDetail.querySelector('.post-content');
     let sourceSummaryEl = postDetail.querySelector('.post-detail__source-summary');
     if (sourceSummaryEl) sourceSummaryEl.remove();
-    if (sourceSummary && postContent) {
-        const summaryHtml = buildSourceSummary(sourceSummary);
+    if (sourceSummary && postContent && postType === 'auto_log') {
+        const summaryHtml = buildDetailSourceSummary(sourceSummary);
         if (summaryHtml) {
-            const wrap = document.createElement('div');
-            wrap.className = 'post-detail__source-summary';
-            wrap.innerHTML = summaryHtml;
-            postContent.insertAdjacentElement('beforebegin', wrap);
+            postContent.insertAdjacentHTML('beforebegin', summaryHtml);
         }
     }
 
     // 제목
     const titleElement = postDetail.querySelector('.post-detail-title');
-    if (titleElement) titleElement.textContent = post.title;
+    if (titleElement) {
+        titleElement.textContent = formatAutoLogTitle(post, sourceSummary, postType);
+    }
 
     // 작성자 정보
     const authorImg = postDetail.querySelector('.author-img img');
@@ -75,7 +92,10 @@ function renderPost(post) {
 
     // 게시글 내용
     const postText = postDetail.querySelector('.post-text');
-    if (postText) postText.textContent = post.content;
+    if (postText) {
+        postText.textContent = post.content;
+        postText.classList.toggle('post-text--auto-log', postType === 'auto_log');
+    }
 
     // 통계 정보
     const likeCount = document.querySelector('.stat-box#btn-like .stat-count');

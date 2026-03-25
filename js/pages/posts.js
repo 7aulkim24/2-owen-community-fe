@@ -1,4 +1,4 @@
-import { get, post, handleApiError, handleApiSuccess, getFullImageUrl } from '../api.js';
+import { get, post, handleApiError, handleApiSuccess, getFullImageUrl, getIntegrations } from '../api.js';
 import { buildPostCard } from '../utils/card-builder.js';
 
 // DOM 요소
@@ -30,6 +30,33 @@ try {
     }
 } catch (e) {
     console.error('Failed to parse user from localStorage', e);
+}
+
+/** 피드 0건 + 로그인 시 연동 여부에 따른 Empty State (Unit 6) */
+function buildFeedEmptyStateHtml(accounts) {
+    const hasGithub = Array.isArray(accounts) && accounts.some((a) => a.provider === 'github');
+    if (hasGithub) {
+        return `
+            <div class="feed-empty-state feed-empty-state--waiting">
+                <h2 class="feed-empty-state__title">첫 수집까지 기다리는 중…</h2>
+                <p class="feed-empty-state__text">GitHub 활동이 수집되면 <strong>Records</strong>에서 초안을 확인할 수 있습니다. 연동 관리에서 <strong>지금 동기화</strong>로 즉시 불러올 수도 있어요.</p>
+                <div class="feed-empty-state__actions">
+                    <a href="/integration.html" class="feed-empty-state__link">연동 관리로 이동</a>
+                    <a href="/drafts.html" class="feed-empty-state__link">초안 목록 보기</a>
+                </div>
+            </div>
+        `;
+    }
+    return `
+        <div class="feed-empty-state feed-empty-state--onboard">
+            <h2 class="feed-empty-state__title">아직 기록이 없습니다</h2>
+            <p class="feed-empty-state__text">GitHub을 연동하면 커밋·PR·이슈 활동이 자동으로 수집되어 하루 작업 로그 초안이 만들어집니다.</p>
+            <div class="feed-empty-state__actions">
+                <a href="/integration.html" class="feed-empty-state__btn">GitHub 연동하기</a>
+                <a href="/make-post.html" class="feed-empty-state__link">또는 직접 글 쓰기</a>
+            </div>
+        </div>
+    `;
 }
 
 // 게시글 렌더링
@@ -75,7 +102,26 @@ async function loadPosts(append = false, force = false) {
         const items = response?.data?.items || [];
         const pagination = response?.data?.pagination || null;
 
-        renderPosts(items, append);
+        if (items.length === 0 && !append) {
+            /* 연동 유도 Empty State는 «전체» 탭 + 로그인일 때만 (필터만 비어 있는 경우 오탐 방지) */
+            if (currentUser && currentPostType === 'all') {
+                try {
+                    const intRes = await getIntegrations();
+                    if (thisLoadId !== loadId) return;
+                    postList.innerHTML = buildFeedEmptyStateHtml(intRes?.data || []);
+                } catch {
+                    if (thisLoadId !== loadId) return;
+                    postList.innerHTML =
+                        '<p class="error">게시글이 없습니다. 첫 글을 작성해보세요!</p>';
+                }
+            } else {
+                postList.innerHTML = '<p class="error">게시글이 없습니다. 첫 글을 작성해보세요!</p>';
+            }
+        } else {
+            renderPosts(items, append);
+        }
+
+        if (thisLoadId !== loadId) return;
 
         currentOffset += LIMIT;
         // 백엔드 메타데이터를 우선 사용, 없을 경우에만 false로 fallback

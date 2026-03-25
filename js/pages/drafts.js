@@ -116,7 +116,7 @@ function renderCard(item) {
   } else if (st === 'approved' && item.postId) {
     actions = `
       <div class="drafts-card-actions">
-        <a class="drafts-btn drafts-btn--ghost" href="post-detail.html?id=${escapeHtml(item.postId)}">게시글 보기</a>
+        <a class="drafts-btn drafts-btn--ghost" href="/post-detail.html?id=${encodeURIComponent(String(item.postId))}">게시글 보기</a>
       </div>
     `;
   }

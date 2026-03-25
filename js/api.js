@@ -309,6 +309,9 @@ export const handleApiSuccess = (response, options = true) => {
 
 // HTTP 메서드별 편의 함수
 export const get = (url) => request(url, { method: 'GET' });
+
+/** 내 연동 계정 목록 (피드 Empty State 등) */
+export const getIntegrations = () => get('/v1/integrations');
 export const post = (url, data) => request(url, {
     method: 'POST',
     body: JSON.stringify(data)

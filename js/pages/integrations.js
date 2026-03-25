@@ -1,14 +1,42 @@
 import { get, post, del, handleApiError, handleApiSuccess, showToast, showConfirmModal, getFullImageUrl } from '../api.js';
 
+/** sync-status API 응답 포맷 */
+function formatSyncStatusLine(data) {
+    const d = data && typeof data === 'object' ? data : {};
+    const status = d.lastJobStatus;
+    const last = d.lastSyncedAt
+        ? new Date(String(d.lastSyncedAt).replace(' ', 'T')).toLocaleString('ko-KR')
+        : '—';
+    const events = typeof d.eventCount === 'number' ? d.eventCount : 0;
+    let stateLabel = '대기 중';
+    if (status === 'running') stateLabel = '동기화 중…';
+    else if (status === 'completed') stateLabel = '완료';
+    else if (status === 'failed') stateLabel = '실패';
+    else if (status === 'pending') stateLabel = '대기 중';
+    let err = '';
+    if (status === 'failed' && d.errorMessage) {
+        err = `<p class="integration-sync__error">${escapeHtml(String(d.errorMessage).slice(0, 200))}</p>`;
+    }
+    return `
+        <div class="integration-sync">
+            <p class="integration-sync__row"><strong>마지막 동기화</strong> <span>${escapeHtml(last)}</span></p>
+            <p class="integration-sync__row"><strong>상태</strong> <span class="integration-sync__state integration-sync__state--${escapeHtml(status || 'none')}">${escapeHtml(stateLabel)}</span></p>
+            <p class="integration-sync__row"><strong>수집 이벤트</strong> <span>${escapeHtml(String(events))}건</span></p>
+            ${err}
+            <button type="button" class="btn-integration btn-sync-now" data-account-id="">지금 동기화</button>
+        </div>
+    `;
+}
+
 const PROVIDERS = {
     github: {
         name: 'GitHub',
-        icon: '🐙',
+        icon: '💻',
         description: '커밋, PR, 이슈 활동 자동 수집',
     },
     notion: {
         name: 'Notion',
-        icon: '📝',
+        icon: '📓',
         description: '페이지/문서 수정 이벤트 수집',
         comingSoon: true,
     },
@@ -21,9 +49,15 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-function renderConnectedCard(account) {
+function renderConnectedCard(account, syncHtml = '') {
     const meta = PROVIDERS[account.provider] || { name: account.provider, icon: '🔗', description: '' };
     const connectedAt = account.connectedAt ? new Date(account.connectedAt).toLocaleDateString('ko-KR') : '';
+    const syncBlock = syncHtml
+        ? syncHtml.replace(
+              'data-account-id=""',
+              `data-account-id="${escapeHtml(account.accountId)}"`,
+          )
+        : '';
     return `
         <div class="integration-card integration-card--connected" data-account-id="${escapeHtml(account.accountId)}">
             <div class="integration-card__header">
@@ -33,6 +67,7 @@ function renderConnectedCard(account) {
             <div class="integration-card__body">
                 <p class="integration-card__username">${escapeHtml(account.providerUsername || '')}</p>
                 <p class="integration-card__date">연동일: ${escapeHtml(connectedAt)}</p>
+                ${syncBlock}
             </div>
             <div class="integration-card__actions">
                 <button type="button" class="btn-integration btn-disconnect" data-account-id="${escapeHtml(account.accountId)}">연동 해제</button>
@@ -76,8 +111,22 @@ async function loadIntegrations() {
         // 연결된 provider 집합 (O(1) 조회)
         const connectedProviders = new Set(accounts.map((a) => a.provider));
 
-        // 연결된 카드 렌더링
-        connectedEl.innerHTML = accounts.map(renderConnectedCard).join('');
+        // 연결된 카드 + 수집 현황 (GitHub만)
+        const cards = await Promise.all(
+            accounts.map(async (account) => {
+                if (account.provider !== 'github') {
+                    return renderConnectedCard(account, '');
+                }
+                try {
+                    const st = await get(`/v1/integrations/${account.accountId}/sync-status`);
+                    const syncHtml = formatSyncStatusLine(st?.data);
+                    return renderConnectedCard(account, syncHtml);
+                } catch {
+                    return renderConnectedCard(account, formatSyncStatusLine({}));
+                }
+            }),
+        );
+        connectedEl.innerHTML = cards.join('');
 
         // PROVIDERS 객체를 순회: 미연동 항목만 pending 카드로 렌더링
         // → provider가 추가돼도 이 함수를 수정할 필요 없음
@@ -112,6 +161,27 @@ function bindIntegrationsListDelegation() {
                     }
                 } catch (error) {
                     handleApiError(error);
+                }
+            })();
+            return;
+        }
+
+        const syncBtn = e.target.closest('.btn-sync-now');
+        if (syncBtn && !syncBtn.classList.contains('btn-disabled')) {
+            const accountId = syncBtn.dataset.accountId;
+            if (!accountId) return;
+            syncBtn.disabled = true;
+            syncBtn.textContent = '동기화 중…';
+            void (async () => {
+                try {
+                    await post(`/v1/integrations/${accountId}/sync`);
+                    showToast('동기화가 완료되었습니다.', 'success');
+                    await loadIntegrations();
+                } catch (error) {
+                    handleApiError(error);
+                } finally {
+                    syncBtn.disabled = false;
+                    syncBtn.textContent = '지금 동기화';
                 }
             })();
             return;

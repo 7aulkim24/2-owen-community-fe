@@ -57,6 +57,12 @@
   border-radius: 0.5rem;
   margin-bottom: 1.25rem;
   border-left: 3px solid var(--color-secondary);
+  border: 1px solid rgba(65, 71, 82, 0.35);
+  border-left: 3px solid var(--color-secondary);
+}
+
+.post-detail--auto-log .post-detail__source-summary {
+  box-shadow: 0 0 0 1px rgba(123, 219, 128, 0.12);
 }
 
 .post-detail__source-summary .post-card__source-summary {
@@ -64,6 +70,119 @@
   padding: 0;
   background: none;
   border: none;
+}
+
+/* Unit 6 — 상세 근거 패널 */
+.post-detail-source__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 480px) {
+  .post-detail-source__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.post-detail-source__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.65rem 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--color-bg);
+  border: 1px solid rgba(65, 71, 82, 0.3);
+}
+
+.post-detail-source__cell-ico {
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
+}
+
+.post-detail-source__cell-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
+  font-family: 'Space Grotesk', monospace;
+}
+
+.post-detail-source__cell-lbl {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-on-surface-variant);
+  margin-top: 0.125rem;
+}
+
+.post-detail-source__block {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(65, 71, 82, 0.25);
+}
+
+.post-detail-source__block-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary);
+}
+
+.post-detail-source__commit-list,
+.post-detail-source__repo-list,
+.post-detail-source__pi-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-on-surface);
+}
+
+.post-detail-source__commit-item {
+  margin-bottom: 0.35rem;
+  line-height: 1.45;
+}
+
+.post-detail-source__commit-repo {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 0.125rem;
+}
+
+.post-detail-source__commit-msg {
+  font-size: 0.8125rem;
+  color: var(--color-on-surface-variant);
+}
+
+.post-detail-source__repo-link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.post-detail-source__repo-link:hover {
+  text-decoration: underline;
+}
+
+.post-detail-source__pi-item {
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.post-detail-source__pi-kind {
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-right: 0.25rem;
+}
+
+.post-text--auto-log {
+  white-space: pre-wrap;
+  line-height: 1.65;
+  font-size: 0.9375rem;
 }
 
 .post-detail-title {
