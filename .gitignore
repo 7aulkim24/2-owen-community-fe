@@ -1,34 +1,35 @@
-# Dependency directories
+# 의존성 디렉터리
 node_modules/
 
-# OS metadata
+# 운영체제 메타데이터
 .DS_Store
 Thumbs.db
 
-# IDEs and editors
+# IDE / 에디터 설정
 .vscode/
 .idea/
 .cursor/
 *.swp
 *.swo
 
-# Environment variables
+# 환경 변수 파일
 .env
 .env.production
 .env.*
 !.env.production.template
 *.env.local
 
-# Build outputs
+# 빌드 산출물 (build-html.sh 가 HTML·자산을 dist/ 에 복사 — 소스는 pages/ 만 버전 관리)
 dist/
 build/
 out/
+coverage/
 
-# Generated HTML files (use build-html.sh to create)
-*.html
-
-# Debug logs
+# 로그 파일
 logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# 캐시/런타임 메타데이터
+.cache/

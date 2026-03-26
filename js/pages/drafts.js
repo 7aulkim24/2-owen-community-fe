@@ -6,8 +6,10 @@ import {
   post,
   handleApiError,
   handleApiSuccess,
-  getFullImageUrl,
+  showConfirmModal,
 } from '../api.js';
+import { initHeader } from '../utils/header-init.js';
+import { escapeHtml } from '../utils/card-builder.js';
 
 const STATUS_ORDER = ['generated', 'approved', 'dismissed'];
 const STATUS_LABELS = {
@@ -15,13 +17,6 @@ const STATUS_LABELS = {
   approved: '승인됨',
   dismissed: '무시됨',
 };
-
-function escapeHtml(s) {
-  if (s == null) return '';
-  const div = document.createElement('div');
-  div.textContent = String(s);
-  return div.innerHTML;
-}
 
 function formatSummaryDate(isoDate) {
   if (!isoDate) return '';
@@ -33,54 +28,6 @@ function formatSummaryDate(isoDate) {
     day: 'numeric',
     weekday: 'short',
   });
-}
-
-function wireHeader() {
-  const headerProfileBtn = document.getElementById('header-profile-btn');
-  const profileDropdown = document.getElementById('profile-dropdown');
-  if (headerProfileBtn && profileDropdown) {
-    headerProfileBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      profileDropdown.classList.toggle('show');
-    });
-    document.addEventListener('click', () => profileDropdown.classList.remove('show'));
-  }
-
-  const logoutBtn = document.getElementById('logout-link');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        const response = await post('/v1/auth/logout');
-        handleApiSuccess(response, {
-          modal: true,
-          title: '로그아웃',
-          code: 'LOGOUT_SUCCESS',
-          onConfirm: () => {
-            localStorage.removeItem('user');
-            window.location.replace('/login.html');
-          },
-        });
-      } catch (err) {
-        handleApiError(err);
-        localStorage.removeItem('user');
-        window.location.replace('/login.html');
-      }
-    });
-  }
-
-  const userRaw = localStorage.getItem('user');
-  if (userRaw) {
-    try {
-      const u = JSON.parse(userRaw);
-      const img = document.getElementById('header-profile-img');
-      if (img && u.profileImageUrl) {
-        img.src = getFullImageUrl(u.profileImageUrl) || img.src;
-      }
-    } catch {
-      /* ignore */
-    }
-  }
 }
 
 function groupByStatus(items) {
@@ -160,16 +107,24 @@ function renderList(items) {
   container.innerHTML = parts.join('');
 
   container.querySelectorAll('[data-dismiss]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       const sid = btn.getAttribute('data-dismiss');
       if (!sid) return;
-      if (!window.confirm('이 초안을 무시할까요? 나중에 다시 생성되지 않을 수 있습니다.')) return;
-      try {
-        await post(`/v1/activities/summaries/${sid}/dismiss`, {});
-        await loadDrafts();
-      } catch (e) {
-        handleApiError(e);
-      }
+      showConfirmModal({
+        title: '초안 무시',
+        message: '이 초안을 무시할까요? 나중에 다시 생성되지 않을 수 있습니다.',
+        confirmText: '무시',
+        cancelText: '취소',
+        dangerConfirm: true,
+        onConfirm: async () => {
+          try {
+            await post(`/v1/activities/summaries/${sid}/dismiss`, {});
+            await loadDrafts();
+          } catch (e) {
+            handleApiError(e);
+          }
+        },
+      });
     });
   });
 }
@@ -198,10 +153,7 @@ async function loadDrafts() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!localStorage.getItem('user')) {
-    window.location.replace('/login.html');
-    return;
-  }
-  wireHeader();
+  const { currentUser } = initHeader({ requireAuth: true });
+  if (!currentUser) return;
   loadDrafts();
 });

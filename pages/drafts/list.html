@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html class="dark" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초안 목록 - Prooflog</title>
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/tailwind.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/pages/drafts.css">
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { background-color: #10141a; color: #dfe2eb; }
+    </style>
+</head>
+<body class="drafts-page min-h-screen pb-24 md:pb-0 font-sans antialiased">
+    <header id="header" class="!bg-[#10141a] border-b border-[#414752]/40 sticky top-0 z-50 shadow-[0_1px_0_rgba(163,201,255,0.06)]">
+        <div class="app-header-inner flex justify-between items-center px-4 sm:px-6 py-3 w-full max-w-[var(--max-width)] mx-auto">
+            <div class="flex items-center gap-1 sm:gap-2 min-w-0">
+                <a href="../posts/list.html" class="text-[#a3c9ff] p-2 hover:bg-[#353940] rounded-lg transition-colors shrink-0 md:hidden" aria-label="피드로">
+                    <span class="material-symbols-outlined text-[24px]">arrow_back</span>
+                </a>
+                <a href="../posts/list.html" class="text-xl font-black text-[#a3c9ff] tracking-tighter truncate">Prooflog</a>
+            </div>
+            <nav class="hidden md:flex items-center gap-8 shrink-0">
+                <a class="text-[#c0c7d4] hover:bg-[#353940] transition-colors duration-200 font-bold text-base py-1 px-2 rounded-lg" href="../posts/list.html">Feed</a>
+                <a class="text-[#a3c9ff] font-bold text-base rounded-lg px-3 py-1.5 ring-1 ring-inset ring-[#a3c9ff]/35 bg-[#262a31]/80" href="drafts.html">Records</a>
+            </nav>
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="profile-icon relative" id="header-profile-btn">
+                    <img loading="lazy" src="../../assets/default-profile.png" alt="" id="header-profile-img" class="w-10 h-10 rounded-full object-cover border border-[#414752]/40">
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <a href="../profile/edit-profile.html">회원정보수정</a>
+                        <a href="../profile/edit-password.html">비밀번호수정</a>
+                        <a href="../integration/manage.html">연동 관리</a>
+                        <a href="drafts.html">초안 목록</a>
+                        <a href="#" id="logout-link">로그아웃</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="app" class="drafts-container app-main max-w-[var(--max-width)] mx-auto px-4 sm:px-6 py-8 md:py-10">
+        <header class="drafts-page-header space-y-2 mb-8">
+            <p class="font-label text-[10px] uppercase tracking-[0.2em] text-[#8b919d]">Activity drafts</p>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-[#dfe2eb] tracking-tight">초안 목록</h1>
+            <p class="text-sm text-[#c0c7d4]">GitHub 활동으로 생성된 일일 요약을 검토하고 피드에 반영할 수 있습니다.</p>
+        </header>
+
+        <div id="drafts-loading" class="drafts-loading text-[#8b919d] text-sm py-8" hidden>불러오는 중…</div>
+        <div id="drafts-error" class="drafts-error rounded-xl border border-red-500/40 bg-red-950/20 text-red-200 text-sm p-4 mb-6" hidden></div>
+
+        <div id="drafts-empty" class="drafts-empty rounded-xl border border-[#414752]/50 bg-[#181c22] p-8 text-center text-[#c0c7d4] text-sm" hidden>
+            아직 생성된 초안이 없습니다. GitHub 연동 후 활동이 수집되면 여기에 표시됩니다.
+        </div>
+
+        <div id="drafts-list-container" class="drafts-sections space-y-10"></div>
+    </main>
+
+    <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-3 pt-2 bg-[#10141a]/90 backdrop-blur-xl border-t border-[#414752]/30 z-40" style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom));" aria-label="주요 메뉴">
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../posts/list.html">
+            <span class="material-symbols-outlined text-[22px]">grid_view</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Feed</span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-[#57a5ff] text-[#001c39] rounded-xl p-2 min-w-[3.5rem]" href="drafts.html">
+            <span class="material-symbols-outlined text-[22px]">history_edu</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Records</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../integration/manage.html">
+            <span class="material-symbols-outlined text-[22px]">link</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">연동</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#c0c7d4] p-2 hover:text-[#a3c9ff] transition-colors min-w-[3.5rem]" href="../profile/edit-profile.html">
+            <span class="material-symbols-outlined text-[22px]">account_circle</span>
+            <span class="font-label text-[10px] uppercase tracking-widest mt-0.5">Profile</span>
+        </a>
+    </nav>
+
+    <script type="module" src="../../js/pages/drafts.js"></script>
+</body>
+</html>

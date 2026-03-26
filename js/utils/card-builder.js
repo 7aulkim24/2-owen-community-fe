@@ -238,7 +238,7 @@ export function buildPostCard(post, getFullImageUrl) {
     `;
 }
 
-function escapeHtml(str) {
+export function escapeHtml(str) {
     if (str == null) return '';
     const s = String(str);
     return s

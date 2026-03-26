@@ -139,10 +139,16 @@ if [ "$MODE" = "prod" ]; then
         (cd "$OUTPUT_DIR" && sed -i '' '/href="css\/tailwind\.css"/d' *.html)
         (cd "$OUTPUT_DIR" && sed -i '' 's|css/common\.css|css/style.min.css|g' *.html)
         (cd "$OUTPUT_DIR" && sed -i '' '/css\/pages\//d' *.html)
+        # 웹폰트 최적화: preconnect 추가 + Material Symbols 가중치 최소화
+        (cd "$OUTPUT_DIR" && sed -i '' 's|<link href="https://fonts.googleapis.com|<link rel="preconnect" href="https://fonts.googleapis.com">\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n    <link href="https://fonts.googleapis.com|g' *.html)
+        (cd "$OUTPUT_DIR" && sed -i '' 's|Material+Symbols+Outlined:wght,FILL@100..700|Material+Symbols+Outlined:wght,FILL@400|g' *.html)
     else
         (cd "$OUTPUT_DIR" && sed -i '/href="css\/tailwind\.css"/d' *.html)
         (cd "$OUTPUT_DIR" && sed -i 's|css/common\.css|css/style.min.css|g' *.html)
         (cd "$OUTPUT_DIR" && sed -i '/css\/pages\//d' *.html)
+        # 웹폰트 최적화: preconnect 추가 + Material Symbols 가중치 최소화
+        (cd "$OUTPUT_DIR" && sed -i 's|<link href="https://fonts.googleapis.com|<link rel="preconnect" href="https://fonts.googleapis.com">\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n    <link href="https://fonts.googleapis.com|g' *.html)
+        (cd "$OUTPUT_DIR" && sed -i 's|Material+Symbols+Outlined:wght,FILL@100..700|Material+Symbols+Outlined:wght,FILL@400|g' *.html)
     fi
     echo "정적 자산 복사 중..."
     rm -rf "$OUTPUT_DIR"/assets

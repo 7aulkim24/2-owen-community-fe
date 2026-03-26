@@ -1,5 +1,6 @@
 import { get, post, handleApiError, handleApiSuccess, getFullImageUrl, getIntegrations } from '../api.js';
 import { buildPostCard } from '../utils/card-builder.js';
+import { initHeader } from '../utils/header-init.js';
 
 // DOM 요소
 const postList = document.getElementById('post-list');
@@ -22,15 +23,6 @@ try {
 let loadId = 0;
 /** 동시에 진행 중인 loadPosts 호출 수 (stale 완료 시에도 플래그가 풀리도록 사용) */
 let activeLoadRequests = 0;
-
-try {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-        currentUser = JSON.parse(userStr);
-    }
-} catch (e) {
-    console.error('Failed to parse user from localStorage', e);
-}
 
 /** 피드 0건 + 로그인 시 연동 여부에 따른 Empty State (Unit 6) */
 function buildFeedEmptyStateHtml(accounts) {
@@ -192,20 +184,9 @@ function setupInfiniteScroll() {
 
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    // 헤더 프로필 드롭다운
-    const headerProfileBtn = document.getElementById('header-profile-btn');
-    const profileDropdown = document.getElementById('profile-dropdown');
-
-    if (headerProfileBtn && profileDropdown) {
-        headerProfileBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('show');
-        });
-
-        document.addEventListener('click', () => {
-            profileDropdown.classList.remove('show');
-        });
-    }
+    // 공통 헤더 초기화 (프로필 드롭다운, 로그아웃)
+    const { currentUser: user } = initHeader();
+    currentUser = user;
 
     // 초기 데이터 로드
     loadPosts();
@@ -258,37 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btnCreate.addEventListener('click', () => {
             location.href = '/make-post.html'; 
-        });
-    }
-
-    // 헤더 프로필 정보 업데이트 및 로그아웃 처리
-    if (headerProfileBtn && currentUser) {
-        const headerProfileImg = headerProfileBtn.querySelector('img');
-        if (headerProfileImg && currentUser.profileImageUrl) {
-            headerProfileImg.src = getFullImageUrl(currentUser.profileImageUrl);
-        }
-    }
-
-    const logoutBtn = document.getElementById('logout-btn') || document.getElementById('logout-link');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await post('/v1/auth/logout');
-                handleApiSuccess(response, {
-                    modal: true,
-                    title: '로그아웃',
-                    code: 'LOGOUT_SUCCESS',
-                    onConfirm: () => {
-                        localStorage.removeItem('user');
-                        window.location.replace('/login.html');
-                    }
-                });
-            } catch (error) {
-                handleApiError(error);
-                localStorage.removeItem('user');
-                window.location.replace('/login.html');
-            }
         });
     }
 

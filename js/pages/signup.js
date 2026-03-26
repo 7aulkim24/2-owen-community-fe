@@ -187,17 +187,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 입력 시마다 검사
+    // 입력 시마다 검사 (디바운싱으로 키스트로크 빈도 제어)
+    function debounce(fn, ms = 150) {
+        let timer;
+        return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+    }
+    const debouncedValidate = debounce(validateAll, 150);
+
     Object.keys(inputs).forEach(key => {
         inputs[key].addEventListener('input', () => {
             // 입력 중에는 중복 확인 에러 상태 초기화 (재검증 유도)
             if (key === 'email') errorState.email = "";
             if (key === 'nickname') errorState.nickname = "";
-            
-            // 입력 중에는 버튼 상태만 체크하고, 이미 터치된 필드만 에러 갱신
-            validateAll();
+
+            // 디바운싱으로 버튼 상태 체크 (이미 터치된 필드만 에러 갱신)
+            debouncedValidate();
         });
-        
+
         inputs[key].addEventListener('blur', () => {
             // 포커스를 잃으면 터치된 것으로 간주하고 에러 메시지 표시
             touched[key] = true;

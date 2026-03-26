@@ -21,49 +21,15 @@ API_BASE_URL="${VITE_API_BASE_URL:-/api}"
 
 echo "Building JavaScript with API_BASE_URL=$API_BASE_URL..."
 
-# 출력 디렉토리 생성
-mkdir -p dist/js/pages
-mkdir -p dist/js/utils
-
-# api.js 번들링 (공통 모듈)
-npx esbuild js/api.js \
+# 모든 페이지 엔트리를 가져와서 --splitting을 통해 공통 청크 자동 분리
+npx esbuild js/pages/*.js \
   --bundle \
   --minify \
+  --splitting \
   --format=esm \
-  --outfile=dist/js/api.js \
+  --outdir=dist/js/pages \
+  --chunk-names=../chunks/[name]-[hash] \
   --define:__API_BASE_URL__="'$API_BASE_URL'"
-
-# error-messages.js 복사 (독립 모듈)
-npx esbuild js/error-messages.js \
-  --bundle \
-  --minify \
-  --format=esm \
-  --outfile=dist/js/error-messages.js
-
-# utils 디렉토리 번들링
-for entry in js/utils/*.js; do
-  if [ -f "$entry" ]; then
-    filename=$(basename "$entry")
-    npx esbuild "$entry" \
-      --bundle \
-      --minify \
-      --format=esm \
-      --outfile="dist/js/utils/$filename"
-  fi
-done
-
-# 각 페이지별 엔트리 포인트 빌드
-for entry in js/pages/*.js; do
-  if [ -f "$entry" ]; then
-    filename=$(basename "$entry")
-    npx esbuild "$entry" \
-      --bundle \
-      --minify \
-      --format=esm \
-      --outfile="dist/js/pages/$filename" \
-      --define:__API_BASE_URL__="'$API_BASE_URL'"
-  fi
-done
 
 echo "✓ JavaScript build complete!"
 echo "  API Base URL: $API_BASE_URL"

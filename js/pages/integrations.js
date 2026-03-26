@@ -1,4 +1,5 @@
 import { get, post, del, handleApiError, handleApiSuccess, showToast, showConfirmModal, getFullImageUrl } from '../api.js';
+import { escapeHtml } from '../utils/card-builder.js';
 
 /** sync-status API 응답 포맷 */
 function formatSyncStatusLine(data) {
@@ -41,13 +42,6 @@ const PROVIDERS = {
         comingSoon: true,
     },
 };
-
-function escapeHtml(str) {
-    if (!str) return '';
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
 
 function renderConnectedCard(account, syncHtml = '') {
     const meta = PROVIDERS[account.provider] || { name: account.provider, icon: '🔗', description: '' };

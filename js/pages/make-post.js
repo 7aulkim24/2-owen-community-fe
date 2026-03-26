@@ -1,65 +1,10 @@
-import { post, uploadFile, handleApiError, handleApiSuccess, showToast, getFullImageUrl, API_BASE_URL } from '../api.js';
+import { post, uploadFile, uploadFiles, handleApiError, handleApiSuccess, showToast, getFullImageUrl, API_BASE_URL } from '../api.js';
+import { initHeader } from '../utils/header-init.js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 세션 정보 확인
-    let currentUser = null;
-    try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            currentUser = JSON.parse(userStr);
-        }
-    } catch (e) {
-        console.error('Failed to parse user from localStorage', e);
-    }
-
-    if (!currentUser) {
-        showToast('로그인이 필요한 서비스입니다.', 'error');
-        window.location.replace('/login.html');
-        return;
-    }
-
-    // 헤더 프로필 드롭다운
-    const headerProfileBtn = document.getElementById('header-profile-btn');
-    const profileDropdown = document.getElementById('profile-dropdown');
-
-    if (headerProfileBtn && profileDropdown) {
-        if (currentUser.profileImageUrl) {
-            const headerProfileImg = headerProfileBtn.querySelector('img');
-            if (headerProfileImg) headerProfileImg.src = getFullImageUrl(currentUser.profileImageUrl);
-        }
-
-        headerProfileBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('show');
-        });
-
-        document.addEventListener('click', () => {
-            profileDropdown.classList.remove('show');
-        });
-    }
-
-    const logoutBtn = document.getElementById('logout-btn') || document.getElementById('logout-link');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await post('/v1/auth/logout');
-                handleApiSuccess(response, {
-                    modal: true,
-                    title: '로그아웃',
-                    code: 'LOGOUT_SUCCESS',
-                    onConfirm: () => {
-                        localStorage.removeItem('user');
-                        window.location.replace('/login.html');
-                    }
-                });
-            } catch (error) {
-                handleApiError(error);
-                localStorage.removeItem('user');
-                window.location.replace('/login.html');
-            }
-        });
-    }
+    // 공통 헤더 초기화 및 인증 확인 (비로그인 시 /login.html 리다이렉트)
+    const { currentUser } = initHeader({ requireAuth: true });
+    if (!currentUser) return;
 
     const btnSubmit = document.getElementById('btn-submit');
     const titleInput = document.getElementById('post-title');
@@ -83,23 +28,34 @@ document.addEventListener('DOMContentLoaded', function() {
     titleInput.addEventListener('input', updateButtonState);
     contentInput.addEventListener('input', updateButtonState);
 
-    // 이미지 미리보기 렌더링
+    // 이미지 미리보기 렌더링 (createObjectURL 사용 — base64보다 메모리 효율적)
     function renderImagePreviews() {
         previewContainer.innerHTML = '';
-        
+
         selectedFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const previewItem = document.createElement('div');
-                previewItem.className = 'image-preview-item';
-                previewItem.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview ${index + 1}">
-                    <button type="button" class="btn-remove-image" data-index="${index}">×</button>
-                    <span class="image-order">${index + 1}</span>
-                `;
-                previewContainer.appendChild(previewItem);
-            };
-            reader.readAsDataURL(file);
+            const objectUrl = URL.createObjectURL(file);
+            const previewItem = document.createElement('div');
+            previewItem.className = 'image-preview-item';
+
+            const img = document.createElement('img');
+            img.alt = `Preview ${index + 1}`;
+            img.onload = () => URL.revokeObjectURL(objectUrl);
+            img.src = objectUrl;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove-image';
+            removeBtn.dataset.index = String(index);
+            removeBtn.textContent = '×';
+
+            const orderSpan = document.createElement('span');
+            orderSpan.className = 'image-order';
+            orderSpan.textContent = String(index + 1);
+
+            previewItem.appendChild(img);
+            previewItem.appendChild(removeBtn);
+            previewItem.appendChild(orderSpan);
+            previewContainer.appendChild(previewItem);
         });
 
         // 파일 수 표시 업데이트
@@ -153,36 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // 다중 이미지 업로드
             if (selectedFiles.length > 0) {
                 try {
-                    // FormData 생성 및 파일 추가
-                    const formData = new FormData();
-                    selectedFiles.forEach(file => {
-                        formData.append('postFiles', file);
-                    });
-
-                    // 다중 업로드 API 호출
-                    const uploadResponse = await fetch(`${API_BASE_URL}/v1/posts/images`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        body: formData
-                    });
-
-                    const uploadResult = await uploadResponse.json().catch(() => ({}));
-
-                    if (!uploadResponse.ok) {
-                        const error = new Error(
-                            uploadResult.message ||
-                            (uploadResponse.status === 413
-                                ? '업로드 용량이 제한을 초과했습니다.'
-                                : '이미지 업로드 실패')
-                        );
-                        error.code = uploadResult.code || (uploadResponse.status === 413 ? 'PAYLOAD_TOO_LARGE' : undefined);
-                        throw error;
-                    }
-
+                    const uploadResult = await uploadFiles('/v1/posts/images', selectedFiles, 'postFiles');
                     fileUrls = uploadResult?.data?.postFileUrls || [];
                 } catch (uploadError) {
                     console.error('이미지 업로드 실패:', uploadError);
-                    throw uploadError;
+                    throw uploadError; // 전역 에러 핸들러로 전달
                 }
             }
 

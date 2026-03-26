@@ -374,3 +374,51 @@ export const uploadFile = async (url, file, fieldName = 'file') => {
         throw error;
     }
 };
+
+/**
+ * 다중 파일 업로드를 위한 유틸리티 함수
+ * @param {string} url - API 엔드포인트
+ * @param {File[]} files - 업로드할 파일 객체 배열
+ * @param {string} fieldName - 백엔드에서 기대하는 폼 필드 이름 (기본값 'files')
+ * @returns {Promise<any>} - 업로드 결과 (StandardResponse.data)
+ */
+export const uploadFiles = async (url, files, fieldName = 'files') => {
+    const formData = new FormData();
+    files.forEach(file => formData.append(fieldName, file));
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${url}`, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+        });
+
+        const requestId = response.headers.get('X-Request-ID') || 'LOCAL';
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            const statusFallbackCode = response.status === 413 ? 'PAYLOAD_TOO_LARGE' : undefined;
+            const errorMessage = result.message || (response.status === 413
+                ? '업로드 용량이 제한을 초과했습니다.'
+                : '다중 파일 업로드에 실패했습니다.');
+            const error = new Error(errorMessage);
+            error.code = result.code || statusFallbackCode;
+            error.requestId = requestId;
+            throw error;
+        }
+
+        return {
+            data: result.data || {},
+            code: result.code
+        };
+    } catch (error) {
+        const location = error.requestId ? 'Backend/DB' : 'Frontend/Network';
+        console.error(`[${error.requestId || 'N/A'}] [${location}] Multi-Upload Error:`, {
+            message: error.message,
+            code: error.code,
+            url: `${API_BASE_URL}${url}`,
+            stack: error.stack
+        });
+        throw error;
+    }
+};
